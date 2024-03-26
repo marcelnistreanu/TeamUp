@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34714.143
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamUp.Server", "TeamUp.Server\TeamUp.Server.csproj", "{E07E672E-78DC-4693-A076-C7DB49A59332}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "teamup.client", "teamup.client\teamup.client.esproj", "{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E07E672E-78DC-4693-A076-C7DB49A59332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E07E672E-78DC-4693-A076-C7DB49A59332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E07E672E-78DC-4693-A076-C7DB49A59332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E07E672E-78DC-4693-A076-C7DB49A59332}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9C9DFA1-55BC-4A4D-9B7D-53206C88E681}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {65C73CCF-8683-4C2A-852F-A5130AE7FA48}
+	EndGlobalSection
+EndGlobal
