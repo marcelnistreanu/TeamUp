@@ -1,4 +1,4 @@
-﻿namespace TeamUp.Server;
+﻿namespace TeamUp.Server.Utils;
 
 public class MessageResponse
 {
