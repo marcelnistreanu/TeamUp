@@ -16,7 +16,7 @@ public class PlayerController : ControllerBase
     }
 
     [HttpGet("getPlayers")]
-    public async Task<ActionResult<List<Player>>> GetPlayers()
+    public async Task<ActionResult<List<PlayerDto>>> GetPlayers()
     {
         var result = await _playerService.GetPlayers();
         if(result.IsSuccess)
@@ -25,18 +25,18 @@ public class PlayerController : ControllerBase
     }
 
     [HttpPost("addPlayer")]
-    public async Task<ActionResult<Player>> AddPlayer(Player player)
+    public async Task<ActionResult<Player>> AddPlayer(CreatePlayerDto playerDto)
     {
-        var result = await _playerService.AddPlayer(player);
+        var result = await _playerService.AddPlayer(playerDto);
         if(result.IsSuccess)
             return Ok(result);
         return BadRequest(result.Error);
     }
 
     [HttpPut("updatePlayer/{playerId}")]
-    public async Task<ActionResult<Player>> UpdatePlayer(int playerId, Player player)
+    public async Task<ActionResult<Player>> UpdatePlayer(int playerId, UpdatePlayerDto playerDto)
     {
-        var result = await _playerService.UpdatePlayer(playerId, player);
+        var result = await _playerService.UpdatePlayer(playerId, playerDto);
         if (result.IsSuccess)
         {
             return Ok(result);
