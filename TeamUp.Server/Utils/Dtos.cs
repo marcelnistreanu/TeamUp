@@ -1,4 +1,6 @@
-﻿namespace TeamUp.Server.Utils;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TeamUp.Server.Utils;
 
 public record PlayerDto(
     int Id,
@@ -11,6 +13,7 @@ public record PlayerDto(
 
 
 public record CreatePlayerDto(
+    [Required]
     string Name,
     string NickName,
     int Age,
@@ -19,6 +22,7 @@ public record CreatePlayerDto(
 );
 
 public record UpdatePlayerDto(
+    [Required]
     string Name,
     string NickName,
     int Age,

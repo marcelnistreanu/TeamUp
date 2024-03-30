@@ -8,6 +8,7 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\teamup.client\</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="src\app\services\" />
     <Folder Include="src\app\pages\" />
   </ItemGroup>
 </Project>

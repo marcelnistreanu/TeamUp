@@ -1,1 +1,9 @@
-<p>home works!</p>
+<h2>List of players</h2>
+@for (player of this.players; track $index) {
+<ul>
+  <li>
+    Name: {{ player.name }}, Age: {{ player.age }}, Preffered game: {{ player.preferredGame }}
+  </li>
+</ul>
+}
+
