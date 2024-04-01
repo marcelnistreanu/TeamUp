@@ -1,0 +1,24 @@
+.main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-header {
+  display: flex;
+  flex-direction: column;
+}
+
+th, td {
+    padding: 10px 20px;
+/*    border: 1px solid gray;*/
+}
+
+/*input {
+    border-radius: 50px;
+    padding: 5px 10px;
+    border: 1px solid;
+}*/
+
+
+
