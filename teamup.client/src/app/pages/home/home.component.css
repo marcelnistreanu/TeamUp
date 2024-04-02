@@ -20,5 +20,11 @@ th, td {
     border: 1px solid;
 }*/
 
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 
 

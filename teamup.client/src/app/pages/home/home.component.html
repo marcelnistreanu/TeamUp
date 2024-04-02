@@ -9,6 +9,13 @@
 
 <div>
 
+  <div class="center-container">
+    <mat-form-field>
+      <mat-label>Search</mat-label>
+      <input matInput (keyup)="filter($event)">
+    </mat-form-field>
+  </div>
+
   <table mat-table [dataSource]="this.dataSource" matSort class="mat-elevation-z8">
 
     <ng-container matColumnDef="id">
@@ -20,12 +27,12 @@
       <th mat-header-cell *matHeaderCellDef>
         <div class="table-header">
           <div class="column-header">Name</div>
-          <div>
+          <!--<div>
             <mat-form-field appearance="outline" class="small-mat-form-field">
-              <mat-label>Enter name</mat-label>
+              <mat-label class="small-label">Enter name</mat-label>
               <input class="small-input" matInput (keyup)="filterByName($event)">
             </mat-form-field>
-          </div>
+          </div>-->
 
         </div>
       </th>
@@ -36,10 +43,10 @@
       <th mat-header-cell *matHeaderCellDef>
         <div class="table-header">
           <div class="column-header">Nickname</div>
-          <mat-form-field appearance="outline">
+          <!--<mat-form-field appearance="outline">
             <mat-label>Enter nickname</mat-label>
             <input matInput (keyup)="filterByNickname($event)">
-          </mat-form-field>
+          </mat-form-field>-->
         </div>
       </th>
       <td mat-cell *matCellDef="let player"> {{player.nickName}} </td>
@@ -59,10 +66,10 @@
       <th mat-header-cell *matHeaderCellDef>
         <div class="table-header">
           <div class="column-header">Preferred Game</div>
-          <mat-form-field appearance="outline">
+          <!--<mat-form-field appearance="outline">
             <mat-label>Enter game</mat-label>
             <input matInput (keyup)="filterByGame($event)">
-          </mat-form-field>
+          </mat-form-field>-->
         </div>
       </th>
       <td mat-cell *matCellDef="let player"> {{player.preferredGame}} </td>

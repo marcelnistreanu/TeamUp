@@ -46,32 +46,27 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  filterByName(e: any): void {
+  filter(e: any): void {
     const filterValue = e.target.value;
     this.dataSource.filter = filterValue;
-    this.dataSource.filterPredicate = (data: Player, filter: string) => {
-      return data.name.toLowerCase().includes(filter);
-    };
+    this.dataSource.filterPredicate;
   }
 
-  filterByNickname(event: any): void {
-    const filterValue = event.target.value.trim().toLowerCase();
-    this.dataSource.filter = filterValue;
-    this.dataSource.filterPredicate = (data: Player, filter: string) => {
-      if (data && data.nickname) {
-        return data.nickname.toLowerCase().includes(filter);
-      }
-      return false;
-    };
-  }
+  //filterByNickname(event: any): void {
+  //  const filterValue = event.target.value.trim().toLowerCase();
+  //  this.dataSource.filter = filterValue;
+  //  this.dataSource.filterPredicate = (data: Player, filter: string) => {
+  //    return data.nickname.toLowerCase().includes(filter);
+  //  }
+  //}
 
-  filterByGame(e: any): void {
-    const filterValue = e.target.value;
-    this.dataSource.filter = filterValue;
-    this.dataSource.filterPredicate = (data: Player, filter: string) => {
-      return data.preferredGame.toLowerCase().includes(filter);
-    };
-  }
+  //filterByGame(e: any): void {
+  //  const filterValue = e.target.value;
+  //  this.dataSource.filter = filterValue;
+  //  this.dataSource.filterPredicate = (data: Player, filter: string) => {
+  //    return data.preferredGame.toLowerCase().includes(filter);
+  //  };
+  //}
 
 
 
