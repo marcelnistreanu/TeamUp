@@ -17,7 +17,7 @@ public partial class Initial : Migration
                 Id = table.Column<int>(type: "INTEGER", nullable: false)
                     .Annotation("Sqlite:Autoincrement", true),
                 Name = table.Column<string>(type: "TEXT", nullable: false),
-                NickName = table.Column<string>(type: "TEXT", nullable: false),
+                nickName = table.Column<string>(type: "TEXT", nullable: false),
                 Age = table.Column<int>(type: "INTEGER", nullable: false),
                 Rating = table.Column<int>(type: "INTEGER", nullable: false),
                 PreferredGame = table.Column<string>(type: "TEXT", nullable: false)

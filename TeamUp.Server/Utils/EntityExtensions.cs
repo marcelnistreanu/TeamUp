@@ -9,10 +9,10 @@ public static class EntityExtensions
         return new PlayerDto(
             player.Id,
             player.Name,
-            player.NickName,
+            player.Email,
+            player.nickName,
             player.Age,
-            player.Rating,
-            player.PreferredGame
+            player.Rating
         );
     }
 }

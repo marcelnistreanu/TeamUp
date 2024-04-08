@@ -19,10 +19,10 @@ public class PlayerService : IPlayerService
         Player player = new()
         {
             Name = playerDto.Name,
-            NickName = playerDto.NickName,
+            Email = playerDto.Email,
+            nickName = playerDto.nickName,
             Age = playerDto.Age,
             Rating = playerDto.Rating,
-            PreferredGame = playerDto.PreferredGame,
         };
         _context.Players.Add(player);
         await _context.SaveChangesAsync();
@@ -50,10 +50,10 @@ public class PlayerService : IPlayerService
         var playerDtos = players.Select(player => new PlayerDto(
             Id: player.Id,
             Name: player.Name,
-            NickName: player.NickName,
+            Email: player.Email,
+            nickName: player.nickName,
             Age: player.Age,
-            Rating: player.Rating,
-            PreferredGame: player.PreferredGame
+            Rating: player.Rating
         )).ToList();
 
         return Result.Ok(playerDtos);
@@ -66,10 +66,10 @@ public class PlayerService : IPlayerService
             return Result.Failure<Player>(Errors.General.NotFound("Player", playerId));
 
         existingPlayer.Name = playerDto.Name;
-        existingPlayer.NickName = playerDto.NickName;
+        existingPlayer.nickName = playerDto.nickName;
+        existingPlayer.Email = playerDto.Email;
         existingPlayer.Age = playerDto.Age;
         existingPlayer.Rating = playerDto.Rating;
-        existingPlayer.PreferredGame = playerDto.PreferredGame;
 
         await _context.SaveChangesAsync();
         return Result.Ok<Player>(existingPlayer, new MessageResponse("Player updated successfully."));

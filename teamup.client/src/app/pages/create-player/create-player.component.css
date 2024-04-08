@@ -19,7 +19,8 @@ label {
 }
 
 input[type="text"],
-input[type="nickname"] {
+input[type="nickName"],
+input[type="number"] {
   width: 100%;
   padding: 0.5rem;
   font-size: 1rem;
@@ -29,11 +30,18 @@ input[type="nickname"] {
 }
 
   input[type="text"]:focus,
-  input[type="nickname"]:focus {
+  input[type="nickName"]:focus,
+  input[type="number"]:focus{
     outline: none;
     border-color: #80bdff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
 button[type="submit"] {
   display: block;
@@ -58,3 +66,12 @@ button[type="submit"] {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
   }
+
+.optional {
+  color: grey;
+  font-weight: normal;
+}
+
+.is-invalid {
+  border-color: red !important; /* Use !important to override potential conflicts */
+}

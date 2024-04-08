@@ -10,8 +10,8 @@ using TeamUp.Server.Data;
 namespace TeamUp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240327150009_Initial")]
-    partial class Initial
+    [Migration("20240404173136_UpdatePlayerDb")]
+    partial class UpdatePlayerDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

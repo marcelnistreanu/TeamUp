@@ -1,53 +1,56 @@
 <div class="player-info">
-  <h2 class="player-text">Player Information</h2>
-  <form
-        #f="ngForm"
-        (ngSubmit)="f.valid && onSubmit()"
-        novalidate>
-        
-    <div class="form-group">
-      <label for="name">Name:</label>
-      <input type="text" id="name" [(ngModel)]="player.name" name="name" #name="ngModel" required>
+  <h2 class="player-text">Create Player</h2>
 
-      @if(name.errors && f.submitted) {
-        @if(name.errors['required']){
-          <div class="text-danger"><small>Name is required</small></div>
+  <form [formGroup]="updateForm"
+        (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input formControlName="name" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['name'].errors}" type="text">
+
+      @if(formSubmitted && updateForm.get('name')?.errors){
+      <div class="invalid-feedback">
+        @if(updateForm.get('name')?.errors?.['required']){
+        <span>Name is required</span>
         }
+      </div>
       }
-
     </div>
-    <div class="form-group">
-      <label for="nickname">Nickname:</label>
-      <input type="nickname" id="nickname" [(ngModel)]="player.nickname" name="nickname" required #nickname="ngModel">
 
-      @if(nickname.errors && f.submitted) {
-        @if(nickname.errors['required']){
-        <div class="text-danger"><small>Nickname is required</small></div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input formControlName="email" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['email'].errors}" type="text">
+
+      @if(formSubmitted && updateForm.get('email')?.errors){
+      <div class="invalid-feedback">
+        @if(updateForm.get('email')?.errors?.['required']){
+        <span>Email is required</span>
         }
-      }
-
-    </div>
-    <div class="form-group">
-      <label for="age">Age:</label>
-      <input type="text" id="age" [(ngModel)]="player.age" name="age" #age="ngModel"  maxlength="3" required>
-
-      @if(age.errors && f.submitted) {
-        @if(age.errors['required']){
-          <div class="text-danger"><small>Age is required</small></div>
+        @if(updateForm.get('email')?.errors?.['email']){
+        <span>Please enter a valid email address</span>
         }
+      </div>
       }
+    </div>
 
-    </div>
     <div class="form-group">
-      <label for="preferredGame">Preferred Game:</label>
-      <input type="text" id="preferredGame" [(ngModel)]="player.preferredGame" name="preferredGame">
+      <label for="nickName">Nickname <span class="optional">(optional)</span></label>
+      <input formControlName="nickName" type="text">
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
+
+    <div class="form-group">
+      <label for="age">Age <span class="optional">(optional)</span></label>
+      <input formControlName="age" type="number" maxlength="3" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 </div>
 
-<!--<div class="player-info" style="padding-top: 5px;" *ngIf="isSuccessful">
+@if(isSuccessful){
+
+<div class="player-info" style="padding-top: 5px;" *ngIf="isSuccessful">
   <div class="alert alert-success" role="alert">
-    Changes saved!
+    Player created successfully!
   </div>
-</div>-->
+</div>
+}
