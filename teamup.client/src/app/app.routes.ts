@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { CreatePlayerComponent } from './pages/create-player/create-player.component';
+import { EditPlayerComponent } from './pages/edit-player/edit-player.component';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent },
