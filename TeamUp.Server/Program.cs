@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TeamUp.Server.Data;
 using TeamUp.Server.Services;
+using TeamUp.Server.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,14 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+            ModelStateValidator.ValidateModelState(context);
+    });
+
 
 builder.Services.AddCors(options =>
 {

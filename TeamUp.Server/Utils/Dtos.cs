@@ -13,19 +13,23 @@ public record PlayerDto(
 
 
 public record CreatePlayerDto(
-    [Required]
+    [NameAttribute]
     string Name,
+    [EmailAttribute]
     string Email,
     string? nickName,
+    [AgeAttribute]
     int? Age,
     int Rating
 );
 
 public record UpdatePlayerDto(
-    [Required]
+    [NameAttribute]
     string Name,
+    [EmailAttribute]
     string Email,
     string? nickName,
+    [AgeAttribute]
     int? Age,
     int Rating
 );

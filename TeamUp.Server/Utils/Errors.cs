@@ -8,6 +8,17 @@ public class Errors
         {
             return new Error("player.name.is.taken", $"Player '{name}' is taken");
         }
+        public static Error EmailIsInvalid() =>
+            new Error("email.format.invalid", "Invalid email format.");
+
+        public static Error AgeIsInvalid() =>
+            new Error("age.invalid.format", "The entered value for age is not a valid number.");
+
+        public static Error NegativeValue() =>
+            new Error("negative.value", "Age cannot be negative.");
+
+        public static Error MaxAge() =>
+            new Error("age.max.limit", "The provided age exceeds the maximum allowed age of 100 years.");
     }
 
     public static class General
@@ -31,5 +42,12 @@ public class Errors
         {
             return new Error("value.too.long", "Value is too long");
         }
+
+        public static Error ValueIsTooLong(int maxLength) =>
+            new Error("value.too.long", $"Value cannot be longer than {maxLength} characters.");
+
+        public static Error ValueIsTooShort(int minLength) =>
+            new Error("value.too.short", $"Value cannot be shorter than {minLength} characters.");
+
     }
 }

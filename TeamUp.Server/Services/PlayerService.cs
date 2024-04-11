@@ -16,13 +16,16 @@ public class PlayerService : IPlayerService
 
     public async Task<Result<Player>> AddPlayer(CreatePlayerDto playerDto)
     {
+        Name name = Name.Create(playerDto.Name).Value;
+        Email email = Email.Create(playerDto.Email).Value;
+
         Player player = new()
         {
-            Name = playerDto.Name,
-            Email = playerDto.Email,
+            Name = name.Value,
+            Email = email.Value,
             nickName = playerDto.nickName,
             Age = playerDto.Age,
-            Rating = playerDto.Rating,
+            Rating = 100,
         };
         _context.Players.Add(player);
         await _context.SaveChangesAsync();
@@ -65,9 +68,12 @@ public class PlayerService : IPlayerService
         if (existingPlayer is null)
             return Result.Failure<Player>(Errors.General.NotFound("Player", playerId));
 
-        existingPlayer.Name = playerDto.Name;
+        Name name = Name.Create(playerDto.Name).Value;
+        Email email = Email.Create(playerDto.Email).Value;
+
+        existingPlayer.Name = name.Value;
         existingPlayer.nickName = playerDto.nickName;
-        existingPlayer.Email = playerDto.Email;
+        existingPlayer.Email = email.Value;
         existingPlayer.Age = playerDto.Age;
         existingPlayer.Rating = playerDto.Rating;
 
