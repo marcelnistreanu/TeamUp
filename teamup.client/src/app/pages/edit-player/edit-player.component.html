@@ -65,4 +65,13 @@
   }
 </div>
 
+@if(formSubmitted && failure) {
+
+<div class="player-info" style="padding-top: 5px;">
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+</div>
+}
+
 

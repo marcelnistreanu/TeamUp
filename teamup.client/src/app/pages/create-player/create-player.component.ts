@@ -21,15 +21,15 @@ export class CreatePlayerComponent implements OnInit {
   updateForm: FormGroup;
   isSuccessful: boolean = false;
   errorMessage: string = '';
+  failure = false;
 
 
   ngOnInit(): void {
-    console.log(this.player);
     this.updateForm = this.formBuilder.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       nickName: [''],
-      age: ['']
+      age: [null]
     })
   }
 
@@ -39,7 +39,6 @@ export class CreatePlayerComponent implements OnInit {
 
   onSubmit(): void {
     this.formSubmitted = true;
-    console.log('Form submitted:', this.formSubmitted);
     if (this.updateForm.valid) {
       const formValue = this.updateForm.value;
       this.player = {
@@ -50,25 +49,24 @@ export class CreatePlayerComponent implements OnInit {
         age: formValue.age
       };
 
-      console.log(this.player);
-
       this.playerService.addPlayer(this.player).subscribe(
         (response: any) => {
-            console.log(response);
+          console.log(response);
           this.isSuccessful = true;
+          this.failure = false
 
           // prepare form for a new entry
           this.formSubmitted = false;
           this.updateForm.reset();
         },
         (error) => {
+          this.failure = true;
           console.error(error);
-          this.errorMessage = error.message;
-          console.log(this.errorMessage);
+          const fieldName = error.error.invalidField;
+          const message = error.error.errorMessage;
+          this.errorMessage = `${fieldName}: ${message}`;
         }
       )
-    } else {
-      console.log('Form is invalid, cannot submit.');
     }
     
   }

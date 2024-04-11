@@ -46,11 +46,20 @@
   </form>
 </div>
 
-@if(isSuccessful){
+@if(isSuccessful) {
 
-<div class="player-info" style="padding-top: 5px;" *ngIf="isSuccessful">
+<div class="player-info" style="padding-top: 5px;">
   <div class="alert alert-success" role="alert">
     Player created successfully!
+  </div>
+</div>
+}
+
+@if(formSubmitted && failure) {
+
+<div class="player-info" style="padding-top: 5px;">
+  <div class="alert alert-danger" role="alert">
+    {{ errorMessage }}
   </div>
 </div>
 }

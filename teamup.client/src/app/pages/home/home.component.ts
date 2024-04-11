@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, signal } from '@angular/core';
 import { PlayerService } from '../../services/player.service';
 import { Player } from '../../models/Player';
 import { HttpClient } from '@angular/common/http';
@@ -19,7 +19,7 @@ import { EditPlayerComponent } from '../edit-player/edit-player.component';
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, MatTableModule, MatSortModule, MatFormField, MatLabel, MatInputModule, MatIconModule,
-    MatButtonModule,],
+    MatButtonModule, EditPlayerComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit {
   displayedColumns: string[] = ['id', 'name', 'email', 'nickName', 'age', 'rating', 'actions'];
   dataSource: MatTableDataSource<Player>;
   @ViewChild(MatSort) sort: MatSort;
+
 
   constructor(private playerService: PlayerService, private snackBar: MatSnackBar,
     private dialog: MatDialog,
@@ -68,29 +69,7 @@ export class HomeComponent implements OnInit {
       width: '600px',
     });
 
-    // receive updated player data
-    dialogRef.componentInstance.playerUpdated.subscribe((updatedPlayer: Player) => {
-      console.log("Updated player:", updatedPlayer)
-
-      // update the players array with the updated player via a new list
-      const updatedPlayers = this.players.map(p => p.id === updatedPlayer.id ? updatedPlayer : p);
-      this.players = updatedPlayers;
-
-      // trigger change detection to update UI
-      this.cdRef.detectChanges();
-
-      // find updated player's index in datasource
-      const dataSourceIndex = this.dataSource.data.findIndex(p => p.id === updatedPlayer.id);
-      if (dataSourceIndex > -1) {
-
-        // replace player data in the data source
-        this.dataSource.data[dataSourceIndex] = updatedPlayer;
-        console.log(this.dataSource.data);
-        this.cdRef.detectChanges();
-
-      }
-    });
-
+    dialogRef.afterClosed().subscribe(() => this.getPlayers());
   }
 
   deletePlayer(player: Player): void {

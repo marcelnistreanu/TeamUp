@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon'; // Import MatIconModule
 import { PlayerService } from '../../services/player.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChangeDetectorRef } from '@angular/core';
+import { Subject } from 'rxjs';
 
 
 @Component({
@@ -24,7 +25,8 @@ export class EditPlayerComponent implements OnInit {
   formSubmitted: boolean = false;
   player: Player = new Player();
   isSuccessful: boolean = false;
-  @Output() playerUpdated = new EventEmitter<Player>();
+  failure: boolean = false;
+  errorMessage: string = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -66,12 +68,14 @@ export class EditPlayerComponent implements OnInit {
         (response: any) => {
           console.log(response);
           this.isSuccessful = true;
-
-          // emit updated player data to home component
-          this.playerUpdated.emit(this.player);
+          this.failure = false;
         },
         (error) => {
+          this.failure = true;
           console.error(error);
+          const fieldName = error.error.invalidField;
+          const message = error.error.errorMessage;
+          this.errorMessage = `${fieldName}: ${message}`;
         }
       )
     }
