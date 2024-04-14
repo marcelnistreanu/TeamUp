@@ -7,7 +7,8 @@
     "strictPropertyInitialization": false,
     "baseUrl": "src",
     "paths": {
-      "tslib": [ "path/to/node_modules/tslib/tslib.d.ts" ]
+      "tslib": [ "path/to/node_modules/tslib/tslib.d.ts" ],
+      "@angular/material/*": [ "node_modules/@angular/material" ]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

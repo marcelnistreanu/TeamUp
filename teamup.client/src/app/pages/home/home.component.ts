@@ -13,13 +13,16 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPlayerComponent } from '../edit-player/edit-player.component';
+import { MatDatepicker } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { CalendarModule } from 'primeng/calendar';
 
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, MatTableModule, MatSortModule, MatFormField, MatLabel, MatInputModule, MatIconModule,
-    MatButtonModule, EditPlayerComponent],
+    MatButtonModule, EditPlayerComponent, MatDatepicker, MatNativeDateModule, CalendarModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
