@@ -12,4 +12,8 @@ public class Player
     public string? nickName { get; set; } = string.Empty;
     public int? Age { get; set; }
     public int Rating { get; set; }
+
+    // Navigation property
+    public int? TeamId { get; set; }
+    public Team Team { get; set; }
 }
