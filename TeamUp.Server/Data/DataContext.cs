@@ -21,17 +21,14 @@ public class DataContext : DbContext
     {
         modelBuilder.Entity<Player>()
             .HasOne(p => p.Team)
-            .WithMany(t => t.Players)
-            .HasForeignKey(p => p.TeamId);
+            .WithMany(t => t.Players);
 
         modelBuilder.Entity<Game>()
-            .HasOne(g => g.Team1) 
-            .WithMany()
-            .HasForeignKey(g => g.Team1Id);
+            .HasOne(g => g.Team1)
+            .WithMany();
 
         modelBuilder.Entity<Game>()
             .HasOne(g => g.Team2)
-            .WithMany()
-            .HasForeignKey(g => g.Team2Id);
+            .WithMany();
     }
 }
