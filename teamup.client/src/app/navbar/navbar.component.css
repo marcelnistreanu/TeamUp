@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+.sidebar {
+     position: fixed; 
+     top: 0; 
+     left: 0; 
+  height: 100%;
+  width: 64px;
+  background: #1e1c1c;
+  z-index: 100;
+  transition: all 0.5s ease;
+}
+
+  .sidebar.close {
+    width: 64px;
+  }
+
+  .sidebar .nav-links {
+    height: 100%;
+    padding: 30px 0 150px 0;
+    overflow: auto;
+  }
+
+  .sidebar.close .nav-links {
+    overflow: visible;
+  }
+
+  .sidebar .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebar .nav-links li {
+    position: relative;
+    list-style: none;
+    transition: all 0.4s ease;
+  }
+
+    .sidebar .nav-links li .iocn-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+  .sidebar.close .nav-links li .iocn-link {
+    display: block
+  }
+
+  .sidebar .nav-links li i {
+    /*   for icon */
+    height: 48px;
+    min-width: 64px;
+    text-align: center;
+    line-height: 10px;
+    color: #808080;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar .nav-links li :hover {
+    color: #fff;
+  }
+
+  .sidebar .nav-links li a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .sidebar.close .nav-links li a .link_name {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sidebar .nav-links li .sub-menu {
+    padding: 6px 6px 14px 80px;
+    margin-top: -10px;
+    background: #1e1c1c;
+    display: none;
+  }
+
+    .sidebar .nav-links li .sub-menu a {
+      color: #fff;
+      font-size: 14px;
+      padding: 5px 0;
+      white-space: nowrap;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+      .sidebar .nav-links li .sub-menu a:hover {
+        opacity: 1;
+      }
+
+  .sidebar.close .nav-links li .sub-menu {
+    position: absolute;
+    /*   margin-top: 10px; */
+    padding: 10px 20px;
+    opacity: 0;
+    display: block;
+    left: 100%;
+    top: 0px;
+    pointer-events: none;
+  }
+
+  .sidebar.close .nav-links li:hover .sub-menu {
+    position: absolute;
+    opacity: 1;
+    pointer-events: auto;
+    transition: all 0.4s ease;
+  }
+
+  .sidebar .nav-links li .sub-menu .link_name {
+    display: none;
+  }
+
+  .sidebar.close .nav-links li .sub-menu .link_name {
+    font-size: 18px;
+    opacity: 1;
+    display: block;
+  }
+
+
+@media (max-width: 420px) {
+  .sidebar.close .nav-links li .sub-menu {
+    display: none;
+  }
+}
