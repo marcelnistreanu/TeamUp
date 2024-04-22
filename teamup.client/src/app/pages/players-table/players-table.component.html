@@ -1,0 +1,85 @@
+<div>
+
+  <div class="center-container">
+    <mat-form-field>
+      <mat-label>Search</mat-label>
+      <input matInput (keyup)="filter($event)">
+    </mat-form-field>
+  </div>
+
+  <table mat-table [dataSource]="this.dataSource" matSort class="mat-elevation-z8">
+
+    <ng-container matColumnDef="id">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+        <td mat-cell *matCellDef="let player"> {{player.id}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef>
+          <div class="table-header">
+            <div class="column-header">Name</div>
+          </div>
+        </th>
+        <td mat-cell *matCellDef="let player"> {{player.name}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef>
+          <div class="table-header">
+            <div class="column-header">Email</div>
+
+          </div>
+        </th>
+        <td mat-cell *matCellDef="let player"> {{player.email}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="nickName">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef>
+          <div class="table-header">
+            <div class="column-header">Nickname</div>
+          </div>
+        </th>
+        <td mat-cell *matCellDef="let player"> {{player.nickName}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="age">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Age </th>
+        <td mat-cell *matCellDef="let player"> {{player.age}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="rating">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Rating </th>
+        <td mat-cell *matCellDef="let player"> {{player.rating}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+        <td mat-cell *matCellDef="let player" class="actions-cell">
+          <button mat-mini-fab color="primary" style="margin-right: 8px;" (click)="editPlayer(player)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-mini-fab color="warn" (click)="deletePlayer(player)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

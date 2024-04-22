@@ -1,37 +1,40 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PlayerService } from '../../services/player.service';
 import { Player } from '../../models/Player';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { EditPlayerComponent } from '../edit-player/edit-player.component';
+import { CalendarModule } from 'primeng/calendar';
+import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDatepicker } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { EditPlayerComponent } from '../edit-player/edit-player.component';
-import { MatDatepicker } from '@angular/material/datepicker';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table'
 import { MatNativeDateModule } from '@angular/material/core';
-import { CalendarModule } from 'primeng/calendar';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { Result } from '../../models/Result';
 
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-players-table',
   standalone: true,
   imports: [CommonModule, MatTableModule, MatSortModule, MatFormField, MatLabel, MatInputModule, MatIconModule,
     MatButtonModule, EditPlayerComponent, MatDatepicker, MatNativeDateModule, CalendarModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  templateUrl: './players-table.component.html',
+  styleUrl: './players-table.component.css'
 })
-export class HomeComponent implements OnInit {
+export class PlayersTableComponent implements OnInit, OnDestroy {
 
   players: Player[] = [];
   displayedColumns: string[] = ['id', 'name', 'email', 'nickName', 'age', 'rating', 'actions'];
   dataSource: MatTableDataSource<Player>;
   @ViewChild(MatSort) sort: MatSort;
+
+  subscriptions: Subscription[] = [];
 
 
   constructor(private playerService: PlayerService, private snackBar: MatSnackBar,
@@ -42,9 +45,13 @@ export class HomeComponent implements OnInit {
     this.getPlayers();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
   getPlayers(): void {
-    this.playerService.getPlayers().subscribe(
-      (response: any) => {
+    this.subscriptions.push(this.playerService.getPlayers().subscribe({
+      next: (response) => {
         if (response) {
           console.log(response);
           this.players = response.value;
@@ -53,9 +60,10 @@ export class HomeComponent implements OnInit {
           console.log("List", this.players);
         }
       },
-      (error) => {
+      error: (error) => {
         console.error(error);
       }
+    })
     );
   }
 
@@ -72,12 +80,13 @@ export class HomeComponent implements OnInit {
       width: '600px',
     });
 
-    dialogRef.afterClosed().subscribe(() => this.getPlayers());
+    this.subscriptions.push(dialogRef.afterClosed().subscribe(() => this.getPlayers()));
   }
 
   deletePlayer(player: Player): void {
-    this.playerService.deletePlayer(player.id).subscribe(
-      (response: any) => {
+    this.subscriptions.push(
+      this.playerService.deletePlayer(player.id).subscribe({
+      next: (response: any) => {
         console.log(response);
 
         // delete player from table (UI)
@@ -88,9 +97,10 @@ export class HomeComponent implements OnInit {
           this.snackBar.open('Player deleted!', '', { duration: 2000 });
         }
       },
-      (error) => {
+      error: (error) => {
         console.error(error);
       }
+    })
     )
   }
 
