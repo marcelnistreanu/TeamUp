@@ -5,4 +5,5 @@ export class Player {
   nickName: string;
   age?: number;
   rating?: number;
+  selected: boolean;
 }
