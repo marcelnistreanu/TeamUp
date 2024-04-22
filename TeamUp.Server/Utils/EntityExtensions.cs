@@ -15,4 +15,18 @@ public static class EntityExtensions
             player.Rating
         );
     }
+
+    public static GameDto AsDto(this Game game)
+    {
+        return new GameDto(
+            game.Id,
+            game.Date,
+            game.Location,
+            game.ScoreTeam1,
+            game.ScoreTeam2,
+            game.Team1,
+            game.Team2,
+            game.Status
+        );
+    }
 }

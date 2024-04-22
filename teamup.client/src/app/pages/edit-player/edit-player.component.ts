@@ -1,15 +1,16 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output } from '@angular/core';
 import { Player } from '../../models/Player';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatError, MatFormField, MatFormFieldControl, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon'; // Import MatIconModule
+import { MatIconModule } from '@angular/material/icon';
 import { PlayerService } from '../../services/player.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { UpdatePlayerDto } from '../../models/Dtos';
 
 
 @Component({
@@ -19,14 +20,16 @@ import { Subject } from 'rxjs';
   templateUrl: './edit-player.component.html',
   styleUrl: './edit-player.component.css'
 })
-export class EditPlayerComponent implements OnInit {
+export class EditPlayerComponent implements OnInit, OnDestroy {
 
   updateForm: FormGroup;
   formSubmitted: boolean = false;
-  player: Player = new Player();
+  playerDto: UpdatePlayerDto = new UpdatePlayerDto();
   isSuccessful: boolean = false;
   failure: boolean = false;
   errorMessage: string = '';
+
+  subscription: Subscription;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -55,32 +58,34 @@ export class EditPlayerComponent implements OnInit {
 
       // extract form data into player object
       const formValue = this.updateForm.value;
-      this.player = {
-        id: this.data.id,
+      this.playerDto = {
         name: formValue.name,
         email: formValue.email,
         nickName: formValue.nickName,
         age: formValue.age
       }
 
-      
-      this.playerService.updatePlayer(this.player.id, this.player).subscribe(
-        (response: any) => {
+
+      this.subscription = this.playerService.updatePlayer(this.data.id, this.playerDto).subscribe({
+        next: (response: any) => {
           console.log(response);
           this.isSuccessful = true;
           this.failure = false;
         },
-        (error) => {
+        error: (error) => {
           this.failure = true;
           console.error(error);
           const fieldName = error.error.invalidField;
           const message = error.error.errorMessage;
           this.errorMessage = `${fieldName}: ${message}`;
         }
-      )
+      })
     }
   }
 
-
+  ngOnDestroy(): void {
+    if (this.subscription)
+      this.subscription.unsubscribe();
+  }
 
 }

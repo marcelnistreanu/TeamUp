@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Player } from '../../models/Player';
+import { CreatePlayerDto } from '../../models/Dtos';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../services/player.service';
 import { MatError, MatFormField, MatFormFieldControl, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-create-player',
@@ -14,14 +16,15 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './create-player.component.html',
   styleUrl: './create-player.component.css'
 })
-export class CreatePlayerComponent implements OnInit {
+export class CreatePlayerComponent implements OnInit, OnDestroy {
 
-  player: Player = new Player();
+  playerDto: CreatePlayerDto = new CreatePlayerDto();
   formSubmitted: boolean = false;
   updateForm: FormGroup;
   isSuccessful: boolean = false;
   errorMessage: string = '';
   failure = false;
+  subscription: Subscription;
 
 
   ngOnInit(): void {
@@ -33,6 +36,11 @@ export class CreatePlayerComponent implements OnInit {
     })
   }
 
+  ngOnDestroy(): void {
+    if (this.subscription)
+      this.subscription.unsubscribe();
+  }
+
   constructor(
     private playerService: PlayerService,
     private formBuilder: FormBuilder) { }
@@ -41,16 +49,15 @@ export class CreatePlayerComponent implements OnInit {
     this.formSubmitted = true;
     if (this.updateForm.valid) {
       const formValue = this.updateForm.value;
-      this.player = {
-        id: 0,
+      this.playerDto = {
         name: formValue.name,
         email: formValue.email,
         nickName: formValue.nickName,
         age: formValue.age
       };
 
-      this.playerService.addPlayer(this.player).subscribe(
-        (response: any) => {
+      this.subscription = this.playerService.addPlayer(this.playerDto).subscribe({
+        next: (response) => {
           console.log(response);
           this.isSuccessful = true;
           this.failure = false
@@ -59,14 +66,14 @@ export class CreatePlayerComponent implements OnInit {
           this.formSubmitted = false;
           this.updateForm.reset();
         },
-        (error) => {
+        error: (error) => {
           this.failure = true;
           console.error(error);
           const fieldName = error.error.invalidField;
           const message = error.error.errorMessage;
           this.errorMessage = `${fieldName}: ${message}`;
         }
-      )
+      })
     }
     
   }

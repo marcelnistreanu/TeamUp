@@ -1,4 +1,4 @@
-<p-table [value]="games" [rowHover]="true" styleClass="p-datatable-striped" >
+<p-table [value]="games" dataKey="id" [rowHover]="true" styleClass="p-datatable-striped">
   <ng-template pTemplate="caption">
     <div class="table-header">
       List of Games
@@ -6,9 +6,10 @@
   </ng-template>
   <ng-template pTemplate="header">
     <tr>
+      <th style="width: 5rem"></th>
       <th>ID</th>
 
-      <th pSortableColumn="date" style="min-width: 14rem">
+      <th pSortableColumn="date" style="width: auto">
         <div class="flex justify-content-between align-items-center">
           Date
           <p-sortIcon field="date"></p-sortIcon>
@@ -16,20 +17,203 @@
         </div>
       </th>
 
-      <th pSortableColumn="location" style="min-width: 14rem">
+      <th style="width: auto">
+        <div class="flex justify-content-between align-items-center">
+          Time
+        </div>
+      </th>
+
+      <th pSortableColumn="location" style="width: auto">
         <div class="flex justify-content-between align-items-center">
           Location
           <p-sortIcon field="location"></p-sortIcon>
           <p-columnFilter type="text" field="location" display="menu" class="ml-auto"></p-columnFilter>
         </div>
       </th>
+
+      <th pSortableColumn="status" style="width: auto">
+        <div class="flex justify-content-between align-items-center">
+          Status
+          <p-sortIcon field="status"></p-sortIcon>
+          <p-columnFilter type="text" field="status" display="menu" class="ml-auto"></p-columnFilter>
+        </div>
+      </th>
+
+      <th pSortableColumn="team1" style="width: auto">
+        <div class="flex justify-content-between align-items-center">
+          Team 1
+          <p-sortIcon field="team1"></p-sortIcon>
+          <p-columnFilter type="text" field="team1" display="menu" class="ml-auto"></p-columnFilter>
+        </div>
+      </th>
+
+      <th pSortableColumn="team2" style="width: auto">
+        <div class="flex justify-content-between align-items-center">
+          Team 2
+          <p-sortIcon field="team2"></p-sortIcon>
+          <p-columnFilter type="text" field="team1" display="menu" class="ml-auto"></p-columnFilter>
+        </div>
+      </th>
+
+      <th style="width: auto">
+        <div>
+          Score
+        </div>
+      </th>
+
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-game>
+
+  <ng-template pTemplate="body" let-game let-expanded="expanded">
     <tr>
+      <td>
+        <button type="button" pButton pRipple [pRowToggler]="game" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+      </td>
       <td>{{game.id}}</td>
-      <td>{{game.date}}</td>
+      <td>{{game.date | date : "dd-MMM-yyyy"}}</td>
+      <td>{{game.date | date : "HH:mm"}}</td>
       <td>{{game.location}}</td>
+      <td><p-tag [severity]="getTagSeverity(game.status)">{{ game.status }}</p-tag></td>
+      <td>{{ game.team1 ? game.team1 : 'N/A' }}</td>
+      <td>{{ game.team2 ? game.team2 : 'N/A'}}</td>
+      <td>{{ game.scoreTeam1 }} - {{ game.scoreTeam2 }}</td>
+      <td>
+        <button (click)="editGame(game)" pButton pRipple icon="pi pi-pencil" style="border-radius: 50%; margin-right:5px" class="p-button-rounded p-button-success mr-2"></button>
+        <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+        <p-toast></p-toast>
+        <button (click)="deleteGame(game)" pButton pRipple icon="pi pi-trash" style="border-radius: 50%; margin-right:5px" class="p-button-rounded p-button-danger"></button>
+        <button (click)="addPlayers()" type="button" class="btn btn-primary">Add players</button>
+      </td>
     </tr>
   </ng-template>
+
+  <ng-template pTemplate="rowexpansion" let-game>
+    <tr>
+      <td colspan="8">
+        <div class="p-3">
+          <p>
+            Players:
+              @for(selectedPlayer of selectedPlayers; track selectedPlayer) {
+                {{ selectedPlayer.name }},
+              }
+          </p>
+          <p>Team 1: {{ game.team1 }}</p>
+          <p>Team 2: {{ game.team2 }}</p>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+
 </p-table>
+
+<p-dialog [(visible)]="addPlayersDialog" [draggable]="false" [style]="{width: '35vw'}" header="Add Players" [modal]="true" styleClass="p-fluid" (onHide)="hideAddPlayersDialog()">
+  <ng-template pTemplate="content">
+
+    <div style="display: block;">
+
+      @for(player of players; track player){
+      <div style="display: block; margin-bottom: 15px;">
+        <p-checkbox #playerCheckbox name="selectedPlayers" [binary]="true" [(ngModel)]="player.selected" label="{{ player.name }}"></p-checkbox>
+      </div>
+        }
+
+      <div style="padding-top: 25px">
+        <button type="button" class="btn btn-primary" (click)="selectPlayers()">Select players</button>
+      </div>
+
+    </div>
+
+  </ng-template>
+</p-dialog>
+
+
+
+<p-dialog [(visible)]="editDialog" [draggable]="false" [style]="{width: '35vw'}" header="Edit Game" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
+  <ng-template pTemplate="content">
+    <form [formGroup]="editForm">
+
+      <div class="form-group">
+        <label>Date</label>
+
+        <!--<p-calendar formControlName="date"
+                inputId="calendar"
+                pInputText
+                [ngClass]="{'ng-invalid ng-dirty is-invalid':formSubmitted && editForm.controls['date'].errors}"
+                [showTime]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy">
+    </p-calendar>-->
+
+        <input matInput type="datetime-local" formControlName="date">
+
+      </div>
+
+
+
+      @if(formSubmitted && editForm.get('date')?.errors){
+      <div class="ng-invalid ng-dirty invalid-feedback">
+        @if(editForm.get('date')?.errors?.['required']){
+        <span>Date is required</span>
+        }
+      </div>
+      }
+
+      <div class="field pt-3">
+        <label for="location">Location</label>
+        <input formControlName="location" [ngClass]="{'form-control is-invalid':formSubmitted && editForm.controls['location'].errors}" type="text" pInputText id="location" />
+
+        @if(formSubmitted && editForm.get('location')?.errors){
+        <div class="invalid-feedback">
+          @if(editForm.get('location')?.errors?.['required']){
+          <span>Location is required</span>
+          }
+        </div>
+        }
+
+      </div>
+
+      <div class="field pt-3">
+
+        <label for="status">Status</label>
+        <select formControlName="status" name="statuses" id="statuses">
+          @for (status of statuses; track status) {
+          <option [value]="status.value">{{ status.label }}</option>
+          }
+
+        </select>
+
+      </div>
+
+      <div class="form-row justify-content-center pt-3">
+        <label>Score</label>
+        <div class="col-3 d-flex align-items-center">
+          <input type="number" class="form-control text-center" formControlName="scoreTeam1" onclick="(function(input) { input.value = ''; })(this)" />
+          <p class="m-0 mx-2">-</p> 
+          <input type="number" class="form-control text-center" formControlName="scoreTeam2" onclick="(function(input) { input.value = ''; })(this)" />
+        </div>
+      </div>
+
+
+
+
+
+      @if(isSuccessful) {
+
+      <div class="pt-3" style="padding-top: 5px;">
+        <div class="alert alert-success" style="display: flex; justify-content: start;" role="alert">
+          {{ message }}
+        </div>
+      </div>
+      }
+
+    </form>
+  </ng-template>
+  <ng-template pTemplate="footer">
+
+
+
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="updateGame()"></button>
+  </ng-template>
+</p-dialog>

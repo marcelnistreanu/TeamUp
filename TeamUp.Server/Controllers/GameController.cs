@@ -16,7 +16,7 @@ public class GameController : ControllerBase
     }
 
     [HttpGet("getGames")]
-    public async Task<ActionResult<List<Game>>> GetGames()
+    public async Task<ActionResult<List<GameDto>>> GetGames()
     {
         var result = await _gameService.GetGames();
         if (result.IsSuccess)
@@ -25,9 +25,9 @@ public class GameController : ControllerBase
     }
 
     [HttpPost("addGame")]
-    public async Task<ActionResult<Game>> AddGame(Game game)
+    public async Task<ActionResult<Game>> AddGame(CreateGameDto gameDto)
     {
-        var result = await _gameService.AddGame(game);
+        var result = await _gameService.AddGame(gameDto);
         if (result.IsSuccess)
             return Ok(result);
         return BadRequest(result.Error);
@@ -37,6 +37,23 @@ public class GameController : ControllerBase
     public async Task<ActionResult> DeleteGame(int gameId)
     {
         var result = await _gameService.DeleteGame(gameId);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+
+        if (result.IsFailure && result.Error.Code == "record.not.found")
+        {
+            return NotFound(result.Error);
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpPut("updateGame/{gameId}")]
+    public async Task<ActionResult> UpdateGame(int gameId, UpdateGameDto gameDto)
+    {
+        var result = await _gameService.UpdateGame(gameId, gameDto);
         if (result.IsSuccess)
         {
             return Ok(result);

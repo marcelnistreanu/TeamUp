@@ -57,4 +57,5 @@ public class Result<T> : Result
     }
 
     public T Value { get; set; }
+    public static implicit operator Result<T>(T value) => Ok(value);
 }

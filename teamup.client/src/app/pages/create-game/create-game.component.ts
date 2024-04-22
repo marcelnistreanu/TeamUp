@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatError, MatFormField, MatFormFieldControl, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +9,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { CalendarModule } from 'primeng/calendar';
 import { TagModule } from 'primeng/tag';
 import { GameService } from '../../services/game.service';
+import { Subscription } from 'rxjs';
+import { CreateGameDto } from '../../models/Dtos';
 
 
 @Component({
@@ -19,14 +21,17 @@ import { GameService } from '../../services/game.service';
   templateUrl: './create-game.component.html',
   styleUrl: './create-game.component.css'
 })
-export class CreateGameComponent implements OnInit{
+export class CreateGameComponent implements OnInit, OnDestroy {
 
-  game: Game = new Game();
+  gameDto: CreateGameDto = new CreateGameDto();
   formSubmitted: boolean = false;
   form: FormGroup;
   isSuccessful: boolean = false;
   errorMessage: string = '';
   failure = false;
+  message: string;
+
+  subscriptions: Subscription[] = [];
 
   constructor(private formBuilder: FormBuilder,
     private gameService: GameService) { }
@@ -38,19 +43,28 @@ export class CreateGameComponent implements OnInit{
     })
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
   onSubmit(): void {
     this.formSubmitted = true;
     if (this.form.valid) {
       const formValue = this.form.value;
-      this.game = {
+      this.gameDto = {
         date: formValue.date,
         location: formValue.location
       }
 
+      this.gameDto.date.setTime(this.gameDto.date.getTime() + (3 * 60 * 60 * 1000)); // Add 3 hours for EEST
+      console.log("GameDto before http: ", this.gameDto);
+
       // http request to create game
-      this.gameService.addGame(this.game).subscribe(
-        (reponse: any) => {
-          console.log(reponse);
+      this.subscriptions.push(this.gameService.addGame(this.gameDto).subscribe({
+        next: (response) => {
+          console.log(response);
+          this.message = response.message.message;
+          console.log(this.message);
           this.isSuccessful = true;
           this.failure = false
 
@@ -58,7 +72,7 @@ export class CreateGameComponent implements OnInit{
           this.formSubmitted = false;
           this.form.reset();
         },
-        (error) => {
+        error: (error) => {
           this.failure = true;
           console.error(error);
 
@@ -66,7 +80,7 @@ export class CreateGameComponent implements OnInit{
           const message = error.error.errorMessage;
           this.errorMessage = `${fieldName}: ${message}`;
         }
-      )
-    }
+      })
+    )}
   }
 }

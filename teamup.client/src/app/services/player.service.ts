@@ -2,28 +2,31 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Player } from '../models/Player';
+import { API_CONFIG } from '../api.config';
+import { Result } from '../models/Result';
+import { CreatePlayerDto, UpdatePlayerDto } from '../models/Dtos';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerService {
 
-  baseUrl = 'https://localhost:7017/api/Player';
+  baseUrl = API_CONFIG.baseUrl + '/Player';
   constructor(private http: HttpClient) { }
 
-  getPlayers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/getPlayers`);
+  getPlayers(): Observable<Result<Player[]>> {
+    return this.http.get<Result<Player[]>>(`${this.baseUrl}/getPlayers`);
   }
 
-  addPlayer(player: Player): Observable<Player> {
-    return this.http.post<Player>(`${this.baseUrl}/addPlayer`, player);
+  addPlayer(playerDto: CreatePlayerDto): Observable<CreatePlayerDto> {
+    return this.http.post<CreatePlayerDto>(`${this.baseUrl}/addPlayer`, playerDto);
   }
 
-  updatePlayer(playerId: number, updatedPlayer: Player): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/updatePlayer/${playerId}`, updatedPlayer);
+  updatePlayer(playerId: number, updatePlayerDto: UpdatePlayerDto): Observable<UpdatePlayerDto> {
+    return this.http.put<UpdatePlayerDto>(`${this.baseUrl}/updatePlayer/${playerId}`, updatePlayerDto);
   }
 
-  deletePlayer(playerId: number): Observable<any> {
-    return this.http.delete<any>(`${this.baseUrl}/deletePlayer/${playerId}`);
+  deletePlayer(playerId: number): Observable<Player> {
+    return this.http.delete<Player>(`${this.baseUrl}/deletePlayer/${playerId}`);
   }
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using TeamUp.Server.Models;
 
 namespace TeamUp.Server.Utils;
 
@@ -32,4 +32,30 @@ public record UpdatePlayerDto(
     [AgeAttribute]
     int? Age,
     int Rating
+);
+
+public record GameDto(
+    int Id,
+    DateTime Date,
+    string Location,
+    int ScoreTeam1,
+    int ScoreTeam2,
+    Team? Team1,
+    Team? Team2,
+    string Status
+);
+
+public record CreateGameDto(
+    DateTime Date,
+    string Location
+);
+
+public record UpdateGameDto(
+    DateTime Date,
+    string Location,
+    int ScoreTeam1,
+    int ScoreTeam2,
+    Team? Team1,
+    Team? Team2,
+    string Status
 );

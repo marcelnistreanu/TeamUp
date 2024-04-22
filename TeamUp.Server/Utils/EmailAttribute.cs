@@ -9,7 +9,7 @@ public class EmailAttribute : ValidationAttribute
         if (value == null)
             return ValidationResult.Success;
 
-        string email = value as string;
+        string? email = value as string;
         if (email == null)
             return new ValidationResult(Errors.General.ValueIsRequired().Serialize());
 

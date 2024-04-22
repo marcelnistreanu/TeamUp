@@ -1,4 +1,6 @@
-﻿namespace TeamUp.Server.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TeamUp.Server.Models;
 
 public class Game
 {
@@ -8,8 +10,14 @@ public class Game
     public string Location { get; set; }
     public int ScoreTeam1 { get; set; }
     public int ScoreTeam2 { get; set; }
-    public int? Team1Id { get; set; }
     public Team? Team1 { get; set; }
-    public int? Team2Id { get; set; }
     public Team? Team2 { get; set; }
+
+    public string Status { get; set; } = "Scheduled";
+
+    public Game(DateTime date, string location)
+    {
+        Date = date; 
+        Location = location;
+    }
 }

@@ -2,20 +2,33 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Game } from '../models/Game';
+import { API_CONFIG } from '../api.config';
+import { CreateGameDto, UpdateGameDto } from '../models/Dtos';
+import { Result } from '../models/Result';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
 
-  baseUrl = 'https://localhost:7017/api/Game';
+  baseUrl = API_CONFIG.baseUrl + '/Game';
+
   constructor(private http: HttpClient) { }
 
-  getGames(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/getGames`);
+  getGames(): Observable<Result<Game[]>> {
+    return this.http.get<Result<Game[]>>(`${this.baseUrl}/getGames`);
   }
 
-  addGame(game: Game): Observable<Game> {
-    return this.http.post<Game>(`${this.baseUrl}/addGame`, game);
+  addGame(gameDto: CreateGameDto): Observable<Result<Game>> {
+    return this.http.post<Result<Game>>(`${this.baseUrl}/addGame`, gameDto);
+  }
+
+  updateGame(gameId: number, game: UpdateGameDto): Observable<Result<Game>> {
+    return this.http.put<Result<Game>>(`${this.baseUrl}/updateGame/${gameId}`, game);
+  }
+
+  deleteGame(gameId: number): Observable<Result<Game>> {
+    return this.http.delete<Result<Game>>(`${this.baseUrl}/deleteGame/${gameId}`);
   }
 }

@@ -9,7 +9,7 @@ public class NameAttribute : ValidationAttribute
         if (value == null)
             return ValidationResult.Success;
 
-        string name = value as string;
+        string? name = value as string;
         if (name == null)
             return new ValidationResult(Errors.General.ValueIsRequired().Serialize());
 

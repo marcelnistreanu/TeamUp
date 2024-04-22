@@ -5,8 +5,8 @@ namespace TeamUp.Server.Services;
 
 public interface IGameService
 {
-    Task<Result<List<Game>>> GetGames();
-    Task<Result<Game>> AddGame(Game game);
-    Task<Result<Game>> UpdateGame(int gameId, Game game);
+    Task<Result<List<GameDto>>> GetGames();
+    Task<Result<Game>> AddGame(CreateGameDto gameDto);
+    Task<Result<Game>> UpdateGame(int gameId, UpdateGameDto gameDto);
     Task<Result<Game>> DeleteGame(int gameId);
 }
