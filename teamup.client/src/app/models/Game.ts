@@ -1,7 +1,7 @@
 import { Team } from "./Team";
 
 export class Game {
-   id?: number;
+   id: number;
    date: Date;
    location: string;
    scoreTeam1?: number;
@@ -10,4 +10,5 @@ export class Game {
    team1?: Team;
    team2Id?: number;
    team2?: Team;
+   status: string;
 }
