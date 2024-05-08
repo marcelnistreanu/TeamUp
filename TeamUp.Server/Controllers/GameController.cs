@@ -66,4 +66,30 @@ public class GameController : ControllerBase
 
         return BadRequest(result);
     }
+
+    [HttpPut("addPlayersToGame/{gameId}")]
+    public async Task<ActionResult> AddPlayersToGame(int gameId, AddPlayersToGameDto gameDto)
+    {
+        var result = await _gameService.AddPlayersToGame(gameId, gameDto);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+
+        if (result.IsFailure && result.Error.Code == "record.not.found")
+        {
+            return NotFound(result.Error);
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpGet("getGame/{gameId}")]
+    public async Task<ActionResult<GameDto>> GetGameById(int gameId)
+    {
+        var result = await _gameService.GetGameById(gameId);
+        if (result.IsSuccess)
+            return Ok(result);
+        return NotFound();
+    }
 }

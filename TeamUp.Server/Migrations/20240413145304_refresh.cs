@@ -5,7 +5,7 @@
 namespace TeamUp.Server.Migrations;
 
 /// <inheritdoc />
-public partial class refresh : Migration
+public partial class Refresh : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)

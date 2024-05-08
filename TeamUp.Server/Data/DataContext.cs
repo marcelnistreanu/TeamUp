@@ -30,5 +30,9 @@ public class DataContext : DbContext
         modelBuilder.Entity<Game>()
             .HasOne(g => g.Team2)
             .WithMany();
+
+        modelBuilder.Entity<Game>()
+            .HasMany(g => g.Players)
+            .WithMany(p => p.Games);
     }
 }

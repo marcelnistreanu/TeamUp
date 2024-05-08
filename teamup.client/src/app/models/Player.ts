@@ -1,3 +1,5 @@
+import { Game } from "./Game";
+
 export class Player {
   id: number;
   name: string;
@@ -5,5 +7,6 @@ export class Player {
   nickName: string;
   age?: number;
   rating?: number;
+  games: Game[];
   selected: boolean;
 }

@@ -3,7 +3,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatError, MatFormField, MatFormFieldControl, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Game } from '../../models/Game';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { CalendarModule } from 'primeng/calendar';

@@ -1,3 +1,4 @@
+import { Player } from "./Player";
 import { Team } from "./Team";
 
 export class Game {
@@ -11,4 +12,5 @@ export class Game {
    team2Id?: number;
    team2?: Team;
    status: string;
+   players: Player[];
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using TeamUp.Server.Utils;
 
 namespace TeamUp.Server.Models;
 
@@ -12,6 +13,7 @@ public class Game
     public int ScoreTeam2 { get; set; }
     public Team? Team1 { get; set; }
     public Team? Team2 { get; set; }
+    public List<Player> Players;
 
     public string Status { get; set; } = "Scheduled";
 

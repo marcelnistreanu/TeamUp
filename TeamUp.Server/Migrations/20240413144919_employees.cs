@@ -2,10 +2,9 @@
 
 #nullable disable
 
-namespace TeamUp.Server.Migrations
-{
+namespace TeamUp.Server.Migrations;
     /// <inheritdoc />
-    public partial class employees : Migration
+    public partial class Employees : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,4 +18,4 @@ namespace TeamUp.Server.Migrations
 
         }
     }
-}
+

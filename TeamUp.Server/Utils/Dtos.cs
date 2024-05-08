@@ -8,7 +8,8 @@ public record PlayerDto(
     string Email,
     string? nickName,
     int? Age,
-    int Rating
+    int Rating,
+    List<Game> Games
 );
 
 
@@ -42,7 +43,8 @@ public record GameDto(
     int ScoreTeam2,
     Team? Team1,
     Team? Team2,
-    string Status
+    string Status,
+    List<Player> Players
 );
 
 public record CreateGameDto(
@@ -58,4 +60,8 @@ public record UpdateGameDto(
     Team? Team1,
     Team? Team2,
     string Status
+);
+
+public record AddPlayersToGameDto(
+    List<Player> Players
 );

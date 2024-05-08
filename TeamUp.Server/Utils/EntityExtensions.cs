@@ -12,7 +12,8 @@ public static class EntityExtensions
             player.Email,
             player.nickName,
             player.Age,
-            player.Rating
+            player.Rating,
+            player.Games
         );
     }
 
@@ -26,7 +27,8 @@ public static class EntityExtensions
             game.ScoreTeam2,
             game.Team1,
             game.Team2,
-            game.Status
+            game.Status,
+            game.Players
         );
     }
 }

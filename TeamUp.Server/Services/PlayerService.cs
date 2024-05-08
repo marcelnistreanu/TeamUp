@@ -25,7 +25,7 @@ public class PlayerService : IPlayerService
             Email = email.Value,
             nickName = playerDto.nickName,
             Age = playerDto.Age,
-            Rating = 100,
+            Rating = 100
         };
         _context.Players.Add(player);
         await _context.SaveChangesAsync();
@@ -56,7 +56,8 @@ public class PlayerService : IPlayerService
             Email: player.Email,
             nickName: player.nickName,
             Age: player.Age,
-            Rating: player.Rating
+            Rating: player.Rating,
+            Games: player.Games
         )).ToList();
 
         return Result.Ok(playerDtos);

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Game } from '../models/Game';
 import { API_CONFIG } from '../api.config';
-import { CreateGameDto, UpdateGameDto } from '../models/Dtos';
+import { AddPlayersToGameDto, CreateGameDto, UpdateGameDto } from '../models/Dtos';
 import { Result } from '../models/Result';
 
 
@@ -30,5 +30,9 @@ export class GameService {
 
   deleteGame(gameId: number): Observable<Result<Game>> {
     return this.http.delete<Result<Game>>(`${this.baseUrl}/deleteGame/${gameId}`);
+  }
+
+  addPlayersToGame(gameId: number, game: AddPlayersToGameDto): Observable<Result<Game>> {
+    return this.http.put<Result<Game>>(`${this.baseUrl}/addPlayersToGame/${gameId}`, game);
   }
 }

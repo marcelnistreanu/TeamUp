@@ -1,3 +1,4 @@
+import { Player } from "./Player";
 import { Team } from "./Team";
 
 export class CreatePlayerDto {
@@ -27,4 +28,12 @@ export class UpdateGameDto {
   team1?: Team;
   team2?: Team;
   status: string;
+}
+
+export class AddPlayersToGameDto {
+  players: Player[];
+
+  constructor(players: Player[]) {
+    this.players = players;
+  }
 }

@@ -1,4 +1,5 @@
-﻿using TeamUp.Server.Utils;
+﻿using Newtonsoft.Json;
+using TeamUp.Server.Utils;
 
 namespace TeamUp.Server.Models;
 
@@ -13,4 +14,6 @@ public class Player
     public int? Age { get; set; }
     public int Rating { get; set; }
     public Team? Team { get; set; }
+    // [JsonIgnore]
+    public List<Game> Games;
 }

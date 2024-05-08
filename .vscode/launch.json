@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: TeamUp.Server [Default Configuration]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}\\TeamUp.Server\\TeamUp.Server.csproj"
+        }
+    ]
+}

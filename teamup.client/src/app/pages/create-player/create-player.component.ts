@@ -1,5 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Player } from '../../models/Player';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CreatePlayerDto } from '../../models/Dtos';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';

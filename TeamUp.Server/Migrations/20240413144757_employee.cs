@@ -5,7 +5,7 @@
 namespace TeamUp.Server.Migrations;
 
 /// <inheritdoc />
-public partial class employee : Migration
+public partial class Employee : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)

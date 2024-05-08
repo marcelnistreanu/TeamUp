@@ -80,9 +80,9 @@
       <td>
         <button (click)="editGame(game)" pButton pRipple icon="pi pi-pencil" style="border-radius: 50%; margin-right:5px" class="p-button-rounded p-button-success mr-2"></button>
         <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
-        <p-toast></p-toast>
+        <p-toast key="selectPlayers"></p-toast>
         <button (click)="deleteGame(game)" pButton pRipple icon="pi pi-trash" style="border-radius: 50%; margin-right:5px" class="p-button-rounded p-button-danger"></button>
-        <button (click)="addPlayers()" type="button" class="btn btn-primary">Add players</button>
+        <button (click)="addPlayers(game)" type="button" class="btn btn-primary">Add players</button>
       </td>
     </tr>
   </ng-template>
@@ -93,8 +93,12 @@
         <div class="p-3">
           <p>
             Players:
-              @for(selectedPlayer of selectedPlayers; track selectedPlayer) {
-                {{ selectedPlayer.name }},
+              @for(selectedPlayer of game.players; track selectedPlayer; let last = $last) {
+                {{ selectedPlayer.name }}
+                @if (!last)
+                {
+                  <span>,</span>
+                }
               }
           </p>
           <p>Team 1: {{ game.team1 }}</p>
@@ -107,27 +111,39 @@
 
 </p-table>
 
+<!-- Add players to the game dialog -->
+
 <p-dialog [(visible)]="addPlayersDialog" [draggable]="false" [style]="{width: '35vw'}" header="Add Players" [modal]="true" styleClass="p-fluid" (onHide)="hideAddPlayersDialog()">
   <ng-template pTemplate="content">
 
-    <div style="display: block;">
+    <p-table [value]="players" [(selection)]="selectedPlayers">
+      <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+            <th>Name</th>
+            <!-- <th>Rating</th> -->
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-player>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="player"/>
+            </td>
+            <td>{{ player.name }}</td>
+            <!-- <td>{{ player.rating }}</td> -->
+          </tr>
+      </ng-template>
+  </p-table>
 
-      @for(player of players; track player){
-      <div style="display: block; margin-bottom: 15px;">
-        <p-checkbox #playerCheckbox name="selectedPlayers" [binary]="true" [(ngModel)]="player.selected" label="{{ player.name }}"></p-checkbox>
-      </div>
-        }
-
-      <div style="padding-top: 25px">
-        <button type="button" class="btn btn-primary" (click)="selectPlayers()">Select players</button>
-      </div>
-
-    </div>
+  <div style="padding-top: 25px">
+    <button type="button" class="btn btn-primary" (click)="selectPlayers()">Select players</button>
+  </div>
 
   </ng-template>
 </p-dialog>
 
 
+<!-- Edit game dialog -->
 
 <p-dialog [(visible)]="editDialog" [draggable]="false" [style]="{width: '35vw'}" header="Edit Game" [modal]="true" styleClass="p-fluid" (onHide)="hideDialog()">
   <ng-template pTemplate="content">
@@ -135,15 +151,6 @@
 
       <div class="form-group">
         <label>Date</label>
-
-        <!--<p-calendar formControlName="date"
-                inputId="calendar"
-                pInputText
-                [ngClass]="{'ng-invalid ng-dirty is-invalid':formSubmitted && editForm.controls['date'].errors}"
-                [showTime]="true"
-                [showIcon]="true"
-                dateFormat="dd/mm/yy">
-    </p-calendar>-->
 
         <input matInput type="datetime-local" formControlName="date">
 

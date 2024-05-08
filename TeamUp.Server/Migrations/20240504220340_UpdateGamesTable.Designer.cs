@@ -11,8 +11,8 @@ using TeamUp.Server.Data;
 namespace TeamUp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240413144919_employees")]
-    partial class Employees
+    [Migration("20240504220340_UpdateGamesTable")]
+    partial class UpdateGamesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,39 +20,57 @@ namespace TeamUp.Server.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
 
-            modelBuilder.Entity("TeamUp.Server.Models.Company", b =>
+            modelBuilder.Entity("GamePlayer", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("gamesId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("playersId")
+                        .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.HasKey("gamesId", "playersId");
 
-                    b.ToTable("Companies");
+                    b.HasIndex("playersId");
+
+                    b.ToTable("GamePlayer");
                 });
 
-            modelBuilder.Entity("TeamUp.Server.Models.Employee", b =>
+            modelBuilder.Entity("TeamUp.Server.Models.Game", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ScoreTeam1")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ScoreTeam2")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Team1Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Team2Id")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("Team1Id");
 
-                    b.ToTable("Employees");
+                    b.HasIndex("Team2Id");
+
+                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("TeamUp.Server.Models.Player", b =>
@@ -75,7 +93,7 @@ namespace TeamUp.Server.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TeamId")
+                    b.Property<int?>("TeamId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("nickName")
@@ -90,7 +108,7 @@ namespace TeamUp.Server.Migrations
 
             modelBuilder.Entity("TeamUp.Server.Models.Team", b =>
                 {
-                    b.Property<int>("TeamId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -98,36 +116,48 @@ namespace TeamUp.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("TeamId");
+                    b.HasKey("Id");
 
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("TeamUp.Server.Models.Employee", b =>
+            modelBuilder.Entity("GamePlayer", b =>
                 {
-                    b.HasOne("TeamUp.Server.Models.Company", "Company")
-                        .WithMany("Employees")
-                        .HasForeignKey("CompanyId")
+                    b.HasOne("TeamUp.Server.Models.Game", null)
+                        .WithMany()
+                        .HasForeignKey("gamesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Company");
+                    b.HasOne("TeamUp.Server.Models.Player", null)
+                        .WithMany()
+                        .HasForeignKey("playersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TeamUp.Server.Models.Game", b =>
+                {
+                    b.HasOne("TeamUp.Server.Models.Team", "Team1")
+                        .WithMany()
+                        .HasForeignKey("Team1Id");
+
+                    b.HasOne("TeamUp.Server.Models.Team", "Team2")
+                        .WithMany()
+                        .HasForeignKey("Team2Id");
+
+                    b.Navigation("Team1");
+
+                    b.Navigation("Team2");
                 });
 
             modelBuilder.Entity("TeamUp.Server.Models.Player", b =>
                 {
                     b.HasOne("TeamUp.Server.Models.Team", "Team")
                         .WithMany("Players")
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TeamId");
 
                     b.Navigation("Team");
-                });
-
-            modelBuilder.Entity("TeamUp.Server.Models.Company", b =>
-                {
-                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("TeamUp.Server.Models.Team", b =>

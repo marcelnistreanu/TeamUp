@@ -12,7 +12,7 @@ namespace TeamUp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
     [Migration("20240413144757_employee")]
-    partial class employee
+    partial class Employee
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

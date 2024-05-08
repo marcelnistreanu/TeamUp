@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PlayerService } from '../../services/player.service';
 import { Player } from '../../models/Player';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,6 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table'
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Result } from '../../models/Result';
 
 
 @Component({
@@ -38,8 +37,7 @@ export class PlayersTableComponent implements OnInit, OnDestroy {
 
 
   constructor(private playerService: PlayerService, private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private cdRef: ChangeDetectorRef) { }
+    private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.getPlayers();

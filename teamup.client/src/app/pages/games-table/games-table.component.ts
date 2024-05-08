@@ -15,7 +15,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { UpdateGameDto } from '../../models/Dtos';
+import { AddPlayersToGameDto, UpdateGameDto } from '../../models/Dtos';
 import { InputOtpModule } from 'primeng/inputotp';
 import { Player } from '../../models/Player';
 import { PlayerService } from '../../services/player.service';
@@ -55,6 +55,14 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   gameDto: UpdateGameDto = new UpdateGameDto();
   formSubmitted: boolean = false;
   isSuccessful: boolean = false;
+
+  selectedPlayers: Player[] = [];
+
+  addPlayersDialog: boolean = false;
+  players: Player[];
+
+  addPlayersToGameDto: AddPlayersToGameDto = new AddPlayersToGameDto(this.selectedPlayers);
+
 
 
   ngOnInit(): void {
@@ -120,6 +128,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Hide edit dialog
   hideDialog(): void {
     this.editDialog = false;
     this.getGames();
@@ -181,8 +190,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
 
   }
 
-  addPlayersDialog: boolean = false;
-  players: Player[];
+
 
   getPlayers(): void {
     this.subscriptions.push(this.playerService.getPlayers().subscribe({
@@ -200,8 +208,10 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     }));
   }
 
-  addPlayers(): void {
+  addPlayers(game: Game): void {
+    this.initializeSelectedPlayers(game);
     this.addPlayersDialog = true;
+    this.selectedGame = game;
   }
 
   hideAddPlayersDialog(): void {
@@ -209,14 +219,36 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.getGames();
   }
 
-  selectedPlayers: Player[];
+  initializeSelectedPlayers(selectedGame: Game): void {
+    this.selectedPlayers = [];
 
-  getSelectedPlayers(): Player[] {
-    return this.selectedPlayers = this.players.filter(player => player.selected);
+    // Iterate over the players of the selected game
+    selectedGame.players.forEach(player => {
+      // Find the corresponding player from the players array
+      const matchingPlayer = this.players.find(p => p.id === player.id);
+      
+      // If the player is found, add it to the selectedPlayers array
+      if (matchingPlayer) {
+        this.selectedPlayers.push(matchingPlayer);
+      }
+    });
   }
 
+  // Select players for game
   selectPlayers(): void {
-    const players = this.getSelectedPlayers();
-    console.log(players);
+    console.log("Players: ", this.selectedPlayers);
+    console.log("Game: ", this.selectedGame);
+
+    this.addPlayersToGameDto.players = this.selectedPlayers;
+
+    this.gameService.addPlayersToGame(this.selectedGame.id, this.addPlayersToGameDto).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.messageService.add({key: 'selectPlayers', severity: 'success', summary: 'Success!', detail: response.message.message, life: 3000 });
+      },
+      error: (error) =>{
+        console.error(error);
+      }
+    })
   }
 }

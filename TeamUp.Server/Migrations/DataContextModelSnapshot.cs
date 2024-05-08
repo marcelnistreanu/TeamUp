@@ -17,6 +17,21 @@ namespace TeamUp.Server.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
 
+            modelBuilder.Entity("GamePlayer", b =>
+                {
+                    b.Property<int>("gamesId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("playersId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("gamesId", "playersId");
+
+                    b.HasIndex("playersId");
+
+                    b.ToTable("GamePlayer");
+                });
+
             modelBuilder.Entity("TeamUp.Server.Models.Game", b =>
                 {
                     b.Property<int>("Id")
@@ -101,6 +116,21 @@ namespace TeamUp.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Teams");
+                });
+
+            modelBuilder.Entity("GamePlayer", b =>
+                {
+                    b.HasOne("TeamUp.Server.Models.Game", null)
+                        .WithMany()
+                        .HasForeignKey("gamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TeamUp.Server.Models.Player", null)
+                        .WithMany()
+                        .HasForeignKey("playersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TeamUp.Server.Models.Game", b =>

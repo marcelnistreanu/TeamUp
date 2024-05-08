@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TeamUp.Server.Data;
 using TeamUp.Server.Services;
 using TeamUp.Server.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +36,26 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
+
+// builder.Services.AddControllersWithViews()
+//     .AddNewtonsoftJson(options =>
+//     {
+//         // options.JsonSerializerOptions.PropertyNamingPolicy = null;
+//         // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; // Preserve reference loop handling
+//         // // Include navigation properties
+//         // options.JsonSerializerOptions.IncludeFields = true;
+//         options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
+
+//     });
+
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson(options =>
+    {
+        // Configure Newtonsoft.Json options here
+        // options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.None;
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
+
 
 var app = builder.Build();
 
