@@ -74,8 +74,8 @@
       <td>{{game.date | date : "HH:mm"}}</td>
       <td>{{game.location}}</td>
       <td><p-tag [severity]="getTagSeverity(game.status)">{{ game.status }}</p-tag></td>
-      <td>{{ game.team1 ? game.team1 : 'N/A' }}</td>
-      <td>{{ game.team2 ? game.team2 : 'N/A'}}</td>
+      <td>{{ game.team1 ? game.team1?.name : 'N/A' }}</td>
+      <td>{{ game.team2 ? game.team2.name : 'N/A'}}</td>
       <td>{{ game.scoreTeam1 }} - {{ game.scoreTeam2 }}</td>
       <td>
         <button (click)="editGame(game)" pButton pRipple icon="pi pi-pencil" style="border-radius: 50%; margin-right:5px" class="p-button-rounded p-button-success mr-2"></button>
@@ -89,21 +89,83 @@
 
   <ng-template pTemplate="rowexpansion" let-game>
     <tr>
-      <td colspan="8">
+      <td colspan="12">
         <div class="p-3">
-          <p>
-            Players:
-              @for(selectedPlayer of game.players; track selectedPlayer; let last = $last) {
-                {{ selectedPlayer.name }}
-                @if (!last)
-                {
-                  <span>,</span>
-                }
+          <div class="form-row d-flex">
+            <div class="col-md-6">
+              <p>
+                <strong>Players:</strong>
+                  @for(selectedPlayer of game.players; track selectedPlayer; let last = $last) {
+                    {{ selectedPlayer.name }}
+                    @if (!last)
+                    {
+                      <span>,</span>
+                    }
+                  }
+              </p>
+            </div>
+
+            <div class="col-md-6">
+              @if(game.players.length >= 4){
+                <button (click)="openGenerateTeamsDialog(game)" style="font-weight: 500; margin-left: 10px;" type="button" class="btn btn-primary btn-sm">
+                  Generate teams
+                </button>
               }
-          </p>
-          <p>Team 1: {{ game.team1 }}</p>
-          <p>Team 2: {{ game.team2 }}</p>
+            </div>
+          </div>
+          
+
+          <div class="form-row d-flex" style="padding-top: 15px;">
+            <div class="col-md-6">
+              <p>
+                <strong>Team 1: </strong>
+                @for(selectedPlayer of game.team1?.players; track selectedPlayer; let last = $last) {
+                  {{ selectedPlayer.name }}({{ selectedPlayer.rating }})
+                  @if (!last)
+                  {
+                    <span>,</span>
+                  }
+                }
+              </p>
+            </div>
+            <div class="col-md-6 d-flex" style="margin-left: 1cm;">
+              <div>
+                <p style="padding-right: 5px;"><strong>OVR: </strong></p>
+              </div>
+              <div>
+                {{ calculateRating(game.team1) }}
+              </div>
+            </div>
+          </div>
+
+
+          <div class="form-row d-flex" style="padding-top: 15px;">
+            <div class="col-md-6">
+              <p>
+                <strong>Team 2: </strong>
+                @for(selectedPlayer of game.team2?.players; track selectedPlayer; let last = $last) {
+                  {{ selectedPlayer.name }}({{ selectedPlayer.rating }})
+                  @if (!last)
+                  {
+                    <span>,</span>
+                  }
+                }
+              </p>
+            </div>
+
+            <div class="col-md-6 d-flex" style="margin-left: 1cm;">
+              <div>
+                <p style="padding-right: 5px;"><strong>OVR: </strong></p>
+              </div>
+              <div>
+                {{ calculateRating(game.team2) }}
+              </div>
+            </div>
+          </div>
+          
         </div>
+
+
       </td>
     </tr>
   </ng-template>
@@ -224,3 +286,52 @@
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="updateGame()"></button>
   </ng-template>
 </p-dialog>
+
+<!-- <p-dialog [(visible)]="generateTeamsDialog" [draggable]="false" [style]="{width: '35vw'}" header="Generate Teams" [modal]="true" styleClass="p-fluid" (onHide)="hideGenerateTeamsDialog()">
+  <ng-template pTemplate="content" let-game> -->
+
+  <!-- Team 1 -->
+<!-- <div class="row">
+
+  <div class="col-3">
+    <h2>Team 1</h2>
+
+    <div class="player-list example-list" (dragover)="onDragOver($event)" pDroppable (drop)="onDrop(game, $event, 'team1')">
+      <ul class="list-none flex flex-column gap-2 p-0 m-0">
+        <div
+        *ngFor="let player of game.team1.players"
+        class="player p-2 border-round shadow-1" 
+        class="example-box"
+        pDraggable
+        draggable="true"
+        (dragstart)="onDragStart(player)">
+        {{ player.name }}
+      </div>
+      </ul>
+    </div>
+  </div>
+   -->
+  <!-- Team 2 -->
+  <!-- <div class="team-container col-md-3">
+    <h2>Team 2</h2>
+    <div class="player-list example-list" (dragover)="onDragOver($event)" pDroppable (drop)="onDrop(game, $event, 'team2')">
+      <ul class="list-none flex flex-column gap-2 p-0 m-0">
+          <li
+          *ngFor="let player of game.team2.players"
+          class="player p-2 border-round shadow-1" 
+          pDraggable
+          class="example-box"
+          draggable="true"
+          (dragstart)="onDragStart(player)">
+          {{ player.name }}
+      </li>
+        
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+  </ng-template>
+</p-dialog> -->
+

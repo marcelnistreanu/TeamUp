@@ -1,0 +1,59 @@
+<button mat-icon-button type="button" (click)="onNoClick()" style="position: absolute; top: 5px; right: 5px;">
+    <mat-icon>close</mat-icon>
+  </button>
+<h1>Generate Teams</h1>
+<p-button label="Generate" (click)="generateTeams()" />
+
+<!-- Team 1 -->
+<div class="row">
+  <div class="col-3">
+    <h2>Team 1</h2>
+
+    <div
+      class="player-list example-list"
+      (dragover)="onDragOver($event)"
+      pDroppable
+      (drop)="onDrop(game, $event, 'team1')"
+    >
+      <ul class="list-none flex flex-column gap-2 p-0 m-0">
+        <div
+          *ngFor="let player of game.team1?.players"
+          class="player p-2 border-round shadow-1"
+          class="example-box"
+          pDraggable
+          draggable="true"
+          (dragstart)="onDragStart(player)"
+        >
+        <i class="pi pi-arrows-alt" style="font-size: 1rem"></i>
+          {{ player.name }}
+        </div>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Team 2 -->
+  <div class="team-container col-md-3">
+    <h2>Team 2</h2>
+    <div
+      class="player-list example-list"
+      (dragover)="onDragOver($event)"
+      pDroppable
+      (drop)="onDrop(game, $event, 'team2')"
+    >
+      <ul class="list-none flex flex-column gap-2 p-0 m-0">
+        <li
+          *ngFor="let player of game.team2?.players"
+          class="player p-2 border-round shadow-1"
+          pDraggable
+          class="example-box"
+          draggable="true"
+          (dragstart)="onDragStart(player)"
+        >
+        <i class="pi pi-arrows-alt" style="font-size: 1rem"></i>
+          {{ player.name }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<p-button label="Save" (click)="saveGame()" />

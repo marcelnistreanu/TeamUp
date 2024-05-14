@@ -35,4 +35,8 @@ export class GameService {
   addPlayersToGame(gameId: number, game: AddPlayersToGameDto): Observable<Result<Game>> {
     return this.http.put<Result<Game>>(`${this.baseUrl}/addPlayersToGame/${gameId}`, game);
   }
+
+  generateTeams(gameId: number): Observable<Result<Game>> {
+    return this.http.put<Result<Game>>(`${this.baseUrl}/generateTeams/${gameId}`, null);
+  }
 }

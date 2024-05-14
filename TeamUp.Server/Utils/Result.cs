@@ -23,23 +23,23 @@ public class Result
 
     public Error Error { get; }
 
-    public static Result Success() => new(true, Error.None, null);
+    public static Result Success() => new(true, Error.None, new MessageResponse());
 
-    public static Result Failure(Error error) => new(false, error, null);
+    public static Result Failure(Error error) => new(false, error, new MessageResponse());
 
     public static Result<T> Failure<T>(Error error)
     {
-        return new Result<T>(default, false, error, null);
+        return new Result<T>(default!, false, error, new MessageResponse());
     }
 
     public static Result<T> Ok<T>(T value)
     {
-        return new Result<T>(value, true, Error.None, null);
+        return new Result<T>(value, true, Error.None, new MessageResponse());
     }   
     
     public static Result<T> Ok<T>(T? value, MessageResponse message)
     {
-        return new Result<T>(value, true, Error.None, message);
+        return new Result<T>(value!, true, Error.None, message);
     }
 
     internal static Result<T> Failure<T>(Error error, string fieldName)

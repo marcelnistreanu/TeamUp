@@ -42,7 +42,8 @@ export class EditPlayerComponent implements OnInit, OnDestroy {
       name: [this.data.name, Validators.required],
       email: [this.data.email, [Validators.required, Validators.email]],
       nickName: [this.data.nickName],
-      age: [this.data.age]
+      dob: [this.data.dob],
+      rating: [this.data.rating, [Validators.required]]
     })
   }
 
@@ -60,7 +61,8 @@ export class EditPlayerComponent implements OnInit, OnDestroy {
         name: formValue.name,
         email: formValue.email,
         nickName: formValue.nickName,
-        age: formValue.age
+        dob: formValue.dob,
+        rating: formValue.rating
       }
 
 

@@ -1,4 +1,4 @@
-import { Component, NgModule, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, NgModule, OnDestroy, OnInit } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { Game } from '../../models/Game';
 import { TableModule } from 'primeng/table';
@@ -13,33 +13,67 @@ import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
-import { FormBuilder, FormControl, FormGroup, FormsModule, NgModel, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  CdkDragDrop,
+  CdkDropList,
+  DragDropModule,
+} from '@angular/cdk/drag-drop';
+
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  NgModel,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { AddPlayersToGameDto, UpdateGameDto } from '../../models/Dtos';
 import { InputOtpModule } from 'primeng/inputotp';
 import { Player } from '../../models/Player';
 import { PlayerService } from '../../services/player.service';
 import { CheckboxModule } from 'primeng/checkbox';
-
+import { Team } from 'app/models/Team';
+// import { DragDropModule } from 'primeng/dragdrop';
+import { DialogService } from 'primeng/dynamicdialog'
+import { GenerateTeamsDialogComponent } from '../generate-teams-dialog/generate-teams-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-games-table',
   standalone: true,
-  imports: [TableModule, CommonModule, ButtonModule, RippleModule, ConfirmDialogModule, ToastModule,
-    TagModule, DialogModule, InputTextModule, CalendarModule, ReactiveFormsModule, DropdownModule,
-    InputOtpModule, CheckboxModule, FormsModule],
-  providers: [ConfirmationService, MessageService],
+  imports: [
+    TableModule,
+    CommonModule,
+    ButtonModule,
+    RippleModule,
+    ConfirmDialogModule,
+    ToastModule,
+    TagModule,
+    DialogModule,
+    InputTextModule,
+    CalendarModule,
+    ReactiveFormsModule,
+    DropdownModule,
+    InputOtpModule,
+    CheckboxModule,
+    FormsModule,
+    DragDropModule,
+  ],
+  providers: [ConfirmationService, MessageService, DialogService],
   templateUrl: './games-table.component.html',
-  styleUrl: './games-table.component.css'
+  styleUrl: './games-table.component.css',
 })
 export class GamesTableComponent implements OnInit, OnDestroy {
-
-  constructor(private gameService: GameService,
+  constructor(
+    private gameService: GameService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private formBuilder: FormBuilder,
-    private playerService: PlayerService
-  ) { }
+    private playerService: PlayerService,
+    private dialog: MatDialog
+  ) {}
 
   games: Game[] = [];
   message: string;
@@ -61,9 +95,9 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   addPlayersDialog: boolean = false;
   players: Player[];
 
-  addPlayersToGameDto: AddPlayersToGameDto = new AddPlayersToGameDto(this.selectedPlayers);
-
-
+  addPlayersToGameDto: AddPlayersToGameDto = new AddPlayersToGameDto(
+    this.selectedPlayers
+  );
 
   ngOnInit(): void {
     this.getGames();
@@ -73,7 +107,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
       location: ['', [Validators.required]],
       status: ['', [Validators.required]],
       scoreTeam1: ['', [Validators.required]],
-      scoreTeam2: ['', [Validators.required]]
+      scoreTeam2: ['', [Validators.required]],
     });
   }
 
@@ -82,49 +116,64 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   }
 
   getGames(): void {
-    this.subscriptions.push(this.gameService.getGames().subscribe({
-      next: (response) => {
-        console.log(response);
-        this.games = response.value;
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    })
-    )
+    this.subscriptions.push(
+      this.gameService.getGames().subscribe({
+        next: (response) => {
+          console.log(response);
+          this.games = response.value;
+        },
+        error: (error) => {
+          console.error(error);
+        },
+      })
+    );
   }
 
   deleteGame(game: Game): void {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete the selected game?',
       accept: () => {
-        this.subscriptions.push(this.gameService.deleteGame(game.id).subscribe({
-          next: (response) => {
-            console.log(response);
-            this.games = this.games.filter(g => g.id !== game.id);
-            this.confirmationService.close();
-            this.messageService.add({ severity: 'success', summary: 'Success!', detail: response.message.message, life: 3000 });
-          },
-          error: (error) => {
-            console.error(error);
-            this.confirmationService.close();
-            this.messageService.add({ severity: 'error', summary: 'Error!', detail: 'Failed to delete game.' });
-          }
-        })
-        )
+        this.subscriptions.push(
+          this.gameService.deleteGame(game.id).subscribe({
+            next: (response) => {
+              console.log(response);
+              this.games = this.games.filter((g) => g.id !== game.id);
+              this.confirmationService.close();
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Success!',
+                detail: response.message.message,
+                life: 3000,
+              });
+            },
+            error: (error) => {
+              console.error(error);
+              this.confirmationService.close();
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error!',
+                detail: 'Failed to delete game.',
+              });
+            },
+          })
+        );
       },
       reject: () => {
         this.confirmationService.close();
-      }
+      },
     });
   }
 
   getTagSeverity(status: string): string {
     switch (status) {
-      case 'Scheduled': return 'primary';
-      case 'Completed': return 'success';
-      case 'Canceled': return 'danger';
-      default: return 'info';
+      case 'Scheduled':
+        return 'primary';
+      case 'Completed':
+        return 'success';
+      case 'Canceled':
+        return 'danger';
+      default:
+        return 'info';
     }
   }
 
@@ -135,14 +184,13 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.isSuccessful = false;
   }
 
-
   editGame(game: Game): void {
     this.editDialog = true;
     this.selectedGame = game;
     this.statuses = [
-      { label: "Scheduled", value: "Scheduled" },
-      { label: "Completed", value: "Completed" },
-      { label: "Canceled", value: "Canceled" },
+      { label: 'Scheduled', value: 'Scheduled' },
+      { label: 'Completed', value: 'Completed' },
+      { label: 'Canceled', value: 'Canceled' },
     ];
 
     this.editForm.patchValue({
@@ -150,14 +198,10 @@ export class GamesTableComponent implements OnInit, OnDestroy {
       location: game.location,
       status: game.status,
       scoreTeam1: game.scoreTeam1,
-      scoreTeam2: game.scoreTeam2
+      scoreTeam2: game.scoreTeam2,
     });
     this.editForm.controls['date'].setValue(game.date);
-
   }
-
-
-
 
   updateGame(): void {
     this.formSubmitted = true;
@@ -168,44 +212,44 @@ export class GamesTableComponent implements OnInit, OnDestroy {
         location: formValue.location,
         status: formValue.status,
         scoreTeam1: formValue.scoreTeam1,
-        scoreTeam2: formValue.scoreTeam2
-      }
+        scoreTeam2: formValue.scoreTeam2,
+      };
 
       console.log(this.gameDto);
 
-      this.subscriptions.push(this.gameService.updateGame(this.selectedGame.id, this.gameDto).subscribe({
+      this.subscriptions.push(
+        this.gameService
+          .updateGame(this.selectedGame.id, this.gameDto)
+          .subscribe({
+            next: (response) => {
+              console.log(response);
+              this.message = response.message.message;
+              this.isSuccessful = true;
+            },
+            error: (error) => {
+              console.error(error);
+            },
+          })
+      );
+    }
+  }
+
+  getPlayers(): void {
+    this.subscriptions.push(
+      this.playerService.getPlayers().subscribe({
         next: (response) => {
           console.log(response);
-          this.message = response.message.message;
-          this.isSuccessful = true;
+          this.players = response.value.map((player) => ({
+            ...player,
+            selected: false,
+          }));
+          console.log(this.players);
         },
         error: (error) => {
           console.error(error);
-        }
+        },
       })
-
-      )
-    }
-
-
-  }
-
-
-
-  getPlayers(): void {
-    this.subscriptions.push(this.playerService.getPlayers().subscribe({
-      next: (response) => {
-        console.log(response);
-        this.players = response.value.map(player => ({
-          ...player,
-          selected: false
-        }));
-        console.log(this.players);
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    }));
+    );
   }
 
   addPlayers(game: Game): void {
@@ -223,10 +267,10 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.selectedPlayers = [];
 
     // Iterate over the players of the selected game
-    selectedGame.players.forEach(player => {
+    selectedGame.players.forEach((player) => {
       // Find the corresponding player from the players array
-      const matchingPlayer = this.players.find(p => p.id === player.id);
-      
+      const matchingPlayer = this.players.find((p) => p.id === player.id);
+
       // If the player is found, add it to the selectedPlayers array
       if (matchingPlayer) {
         this.selectedPlayers.push(matchingPlayer);
@@ -236,19 +280,131 @@ export class GamesTableComponent implements OnInit, OnDestroy {
 
   // Select players for game
   selectPlayers(): void {
-    console.log("Players: ", this.selectedPlayers);
-    console.log("Game: ", this.selectedGame);
+    console.log('Players: ', this.selectedPlayers);
+    console.log('Game: ', this.selectedGame);
 
     this.addPlayersToGameDto.players = this.selectedPlayers;
 
-    this.gameService.addPlayersToGame(this.selectedGame.id, this.addPlayersToGameDto).subscribe({
-      next: (response) => {
-        console.log(response);
-        this.messageService.add({key: 'selectPlayers', severity: 'success', summary: 'Success!', detail: response.message.message, life: 3000 });
-      },
-      error: (error) =>{
-        console.error(error);
-      }
-    })
+    this.subscriptions.push(
+      this.gameService
+        .addPlayersToGame(this.selectedGame.id, this.addPlayersToGameDto)
+        .subscribe({
+          next: (response) => {
+            console.log(response);
+            if (
+              response.message.message !=
+              "No changes were made to the game's players."
+            ) {
+              this.messageService.add({
+                key: 'selectPlayers',
+                severity: 'success',
+                summary: 'Success!',
+                detail: response.message.message,
+                life: 3000,
+              });
+            } else {
+              this.messageService.add({
+                key: 'selectPlayers',
+                severity: 'info',
+                summary: 'Info',
+                detail: response.message.message,
+                life: 3000,
+              });
+            }
+          },
+          error: (error) => {
+            console.error(error);
+          },
+        })
+    );
   }
+
+  generateTeams(gameId: number) {
+    this.subscriptions.push(
+      this.gameService.generateTeams(gameId).subscribe({
+        next: (response) => {
+          console.log(response);
+          this.getGames();
+        },
+        error: (error) => {
+          console.error(error);
+        },
+      })
+    );
+  }
+  ovr: number;
+
+  calculateRating(team: Team): number {
+    this.ovr = 0;
+    team.players.forEach((player) => {
+      if (player.rating !== undefined) {
+        // Check if rating property exists
+        this.ovr = this.ovr + player.rating;
+      }
+    });
+    return this.ovr;
+  }
+
+
+  currentPlayerDragged: Player;
+
+  onDragStart(player: Player) {
+    console.log('onDragStart');
+    this.currentPlayerDragged = player;
+    console.log(this.currentPlayerDragged);
+  }
+
+  onDrop(game: Game, event: any, team: string) {
+    console.log('onDrop team: ', team);
+    if (team == 'team1') {
+      
+      game.team1?.players.push(this.currentPlayerDragged);
+      // const indexOfDraggedPlayer: number | undefined = game.team1?.players.findIndex(p => p.id === this.currentPlayerDragged.id);
+      // if (indexOfDraggedPlayer !== undefined && indexOfDraggedPlayer !== -1) { // Check if player found
+      //   game.team1?.players.splice(indexOfDraggedPlayer, 1);
+      // }
+      
+
+      if (game.team2?.players) {
+        game.team2.players = game.team2.players.filter(
+          (p) => p.id !== this.currentPlayerDragged.id
+        );
+      }
+    } else if (team == 'team2') {
+      game.team2?.players.push(this.currentPlayerDragged);
+
+      if (game.team1?.players) {
+        game.team1.players = game.team1.players.filter(
+          (p) => p.id !== this.currentPlayerDragged.id
+        );
+      }
+    }
+  }
+
+  onDragOver(event: any) {
+    console.log('onDragOver');
+    event.preventDefault();
+  }
+
+  generateTeamsDialog: boolean = false;
+
+  hideGenerateTeamsDialog() {
+    this.generateTeamsDialog= false;
+  }
+
+  openGenerateTeamsDialog(game: Game) {
+    this.generateTeamsDialog = true;
+    console.log('Game data:', game); // Log game data
+    const ref = this.dialog.open(GenerateTeamsDialogComponent, {
+      data: game,
+      height: '600px',
+      width: '600px',
+    });
+
+    this.subscriptions.push(
+      ref.afterClosed().subscribe(() => this.getGames())
+    );
+  }
+
+ 
 }

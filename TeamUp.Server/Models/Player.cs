@@ -11,9 +11,9 @@ public class Player
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string? nickName { get; set; } = string.Empty;
-    public int? Age { get; set; }
+    public DateTime? DOB { get; set; }
     public int Rating { get; set; }
     public Team? Team { get; set; }
     // [JsonIgnore]
-    public List<Game> Games;
+    public List<Game> Games = new();
 }

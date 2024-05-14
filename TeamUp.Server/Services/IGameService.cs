@@ -11,4 +11,5 @@ public interface IGameService
     Task<Result<Game>> DeleteGame(int gameId);
     Task<Result<Game>> AddPlayersToGame(int gameId, AddPlayersToGameDto gameDto);
     Task<Result<Game>> GetGameById(int gameId);
+    Task<Result<Game>> GenerateTeams(int gameId);
 }

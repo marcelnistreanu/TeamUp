@@ -13,7 +13,7 @@ public class Game
     public int ScoreTeam2 { get; set; }
     public Team? Team1 { get; set; }
     public Team? Team2 { get; set; }
-    public List<Player> Players;
+    public List<Player> Players = new();
 
     public string Status { get; set; } = "Scheduled";
 

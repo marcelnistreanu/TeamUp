@@ -31,7 +31,7 @@ export class CreatePlayerComponent implements OnInit, OnDestroy {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       nickName: [''],
-      age: [null]
+      dob: [null]
     })
   }
 
@@ -52,7 +52,7 @@ export class CreatePlayerComponent implements OnInit, OnDestroy {
         name: formValue.name,
         email: formValue.email,
         nickName: formValue.nickName,
-        age: formValue.age
+        dob: formValue.dob
       };
 
       this.subscription = this.playerService.addPlayer(this.playerDto).subscribe({

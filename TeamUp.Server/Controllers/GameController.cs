@@ -92,4 +92,21 @@ public class GameController : ControllerBase
             return Ok(result);
         return NotFound();
     }
+
+    [HttpPut("generateTeams/{gameId}")]
+    public async Task<ActionResult> GenerateTeams(int gameId)
+    {
+        var result = await _gameService.GenerateTeams(gameId);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+
+        if (result.IsFailure && result.Error.Code == "record.not.found")
+        {
+            return NotFound(result.Error);
+        }
+
+        return BadRequest(result);
+    }
 }

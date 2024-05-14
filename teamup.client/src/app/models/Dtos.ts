@@ -5,14 +5,15 @@ export class CreatePlayerDto {
   name: string;
   email: string;
   nickName?: string;
-  age?: number;
+  dob?: Date;
 }
 
 export class UpdatePlayerDto {
   name: string;
   email: string;
   nickName?: string;
-  age?: number;
+  dob?: Date;
+  rating: number;
 }
 
 export class CreateGameDto {

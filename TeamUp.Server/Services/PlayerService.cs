@@ -24,7 +24,7 @@ public class PlayerService : IPlayerService
             Name = name.Value,
             Email = email.Value,
             nickName = playerDto.nickName,
-            Age = playerDto.Age,
+            DOB = playerDto.DOB,
             Rating = 100
         };
         _context.Players.Add(player);
@@ -55,7 +55,7 @@ public class PlayerService : IPlayerService
             Name: player.Name,
             Email: player.Email,
             nickName: player.nickName,
-            Age: player.Age,
+            DOB: player.DOB,
             Rating: player.Rating,
             Games: player.Games
         )).ToList();
@@ -75,7 +75,7 @@ public class PlayerService : IPlayerService
         existingPlayer.Name = name.Value;
         existingPlayer.nickName = playerDto.nickName;
         existingPlayer.Email = email.Value;
-        existingPlayer.Age = playerDto.Age;
+        existingPlayer.DOB = playerDto.DOB;
         existingPlayer.Rating = playerDto.Rating;
 
         await _context.SaveChangesAsync();
