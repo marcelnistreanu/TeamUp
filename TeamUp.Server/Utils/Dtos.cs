@@ -7,7 +7,7 @@ public record PlayerDto(
     string Name,
     string Email,
     string? nickName,
-    int? Age,
+    DateTime? DOB,
     int Rating,
     List<Game> Games
 );
@@ -19,8 +19,8 @@ public record CreatePlayerDto(
     [EmailAttribute]
     string Email,
     string? nickName,
-    [AgeAttribute]
-    int? Age,
+    // [AgeAttribute]
+    DateTime? DOB,
     int Rating
 );
 
@@ -30,8 +30,8 @@ public record UpdatePlayerDto(
     [EmailAttribute]
     string Email,
     string? nickName,
-    [AgeAttribute]
-    int? Age,
+    // [AgeAttribute]
+    DateTime? DOB,
     int Rating
 );
 

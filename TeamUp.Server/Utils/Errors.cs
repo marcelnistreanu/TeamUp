@@ -2,6 +2,13 @@
 
 public class Errors
 {
+    public static class Game
+    {
+        public static Error MinPlayers()
+        {
+            return new Error("min.players", "Not enough players to generate teams. Minimum 4 players required.");
+        }
+    }
     public static class Player
     {
         public static Error NameIsTaken(string name)

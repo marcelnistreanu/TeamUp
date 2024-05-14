@@ -15,11 +15,8 @@ public class Age
     {
         int age = input;
 
-        if (!(input is int))
-            return Result.Failure<Age>(Errors.Player.AgeIsInvalid());
-
-        if (input > 0 && input % 10 == 0)
-            return Result.Failure<Age>(Errors.Player.AgeIsInvalid());
+        // if (!(input is int))
+        //     return Result.Failure<Age>(Errors.Player.AgeIsInvalid());
 
         if (age < 0)
             return Result.Failure<Age>(Errors.Player.NegativeValue());

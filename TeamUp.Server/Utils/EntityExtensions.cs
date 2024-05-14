@@ -11,7 +11,7 @@ public static class EntityExtensions
             player.Name,
             player.Email,
             player.nickName,
-            player.Age,
+            player.DOB,
             player.Rating,
             player.Games
         );
