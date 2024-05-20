@@ -138,6 +138,7 @@ public class GameService : IGameService
         var game = await _context.Games
             .Include(g => g.Players)
             .FirstOrDefaultAsync(g => g.Id == gameId);
+
         if (game is null)
             return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
 
@@ -173,5 +174,55 @@ public class GameService : IGameService
 
         return Result.Ok<Models.Game>(game, new MessageResponse("Teams generated."));
     }
+
+    public async Task<Result<Models.Game>> UpdateGameTeams(int gameId, UpdateTeamsDto dto)
+    {
+
+        var game = await _context.Games
+            .Include(g => g.Players)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+
+        // if (game != null)
+        //     _context.Entry(game).State = EntityState.Detached;
+
+        if (game is null)
+            return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
+        
+
+        // var team1 = await _context.Teams.FirstOrDefaultAsync(t => t.Id == dto.Team1!.Id);
+        // if(team1 is null)
+        //     game.Team1=dto.Team1;
+        // else
+        //     _context.Attach(dto.Team1);
+
+        // var team2 = await _context.Teams.FirstOrDefaultAsync(t => t.Id == dto.Team2!.Id);
+        // if(team1 is null)
+        //     game.Team2=dto.Team2;
+        // else
+        //     _context.Attach(dto.Team2);
+
+        // Team newTeam1 = new Team();
+        // Team newTeam2 = new Team();
+
+        // await _context.Teams.AddRangeAsync(newTeam1, newTeam2);
+
+        // game.Team1 = newTeam1;
+        // game.Team2 = newTeam2;
+
+        game.Team1 = dto.Team1;
+        game.Team2 = dto.Team2;
+
+        // game.Team1.Players = dto.Team1!.Players;
+        // game.Team2.Players = dto.Team2!.Players;
+
+
+        // _context.Attach(game);
+        // _context.Entry(game).State = EntityState.Modified;
+        
+        await _context.SaveChangesAsync();
+
+        return Result.Ok<Models.Game>(game, new MessageResponse("Teams updated."));
+    }
+
 
 }

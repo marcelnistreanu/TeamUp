@@ -36,7 +36,7 @@ import { PlayerService } from '../../services/player.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Team } from 'app/models/Team';
 // import { DragDropModule } from 'primeng/dragdrop';
-import { DialogService } from 'primeng/dynamicdialog'
+import { DialogService } from 'primeng/dynamicdialog';
 import { GenerateTeamsDialogComponent } from '../generate-teams-dialog/generate-teams-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -336,15 +336,15 @@ export class GamesTableComponent implements OnInit, OnDestroy {
 
   calculateRating(team: Team): number {
     this.ovr = 0;
-    team.players.forEach((player) => {
-      if (player.rating !== undefined) {
-        // Check if rating property exists
-        this.ovr = this.ovr + player.rating;
-      }
-    });
+    if (team?.players) {
+      team.players?.forEach((player) => {
+        if (player.rating !== undefined) {
+          this.ovr = this.ovr + player.rating;
+        }
+      });
+    }
     return this.ovr;
   }
-
 
   currentPlayerDragged: Player;
 
@@ -357,13 +357,11 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   onDrop(game: Game, event: any, team: string) {
     console.log('onDrop team: ', team);
     if (team == 'team1') {
-      
       game.team1?.players.push(this.currentPlayerDragged);
       // const indexOfDraggedPlayer: number | undefined = game.team1?.players.findIndex(p => p.id === this.currentPlayerDragged.id);
       // if (indexOfDraggedPlayer !== undefined && indexOfDraggedPlayer !== -1) { // Check if player found
       //   game.team1?.players.splice(indexOfDraggedPlayer, 1);
       // }
-      
 
       if (game.team2?.players) {
         game.team2.players = game.team2.players.filter(
@@ -389,7 +387,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   generateTeamsDialog: boolean = false;
 
   hideGenerateTeamsDialog() {
-    this.generateTeamsDialog= false;
+    this.generateTeamsDialog = false;
   }
 
   openGenerateTeamsDialog(game: Game) {
@@ -401,10 +399,6 @@ export class GamesTableComponent implements OnInit, OnDestroy {
       width: '600px',
     });
 
-    this.subscriptions.push(
-      ref.afterClosed().subscribe(() => this.getGames())
-    );
+    this.subscriptions.push(ref.afterClosed().subscribe(() => this.getGames()));
   }
-
- 
 }

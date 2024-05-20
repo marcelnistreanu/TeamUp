@@ -31,6 +31,11 @@ export class UpdateGameDto {
   status: string;
 }
 
+export class UpdateTeamsDto {
+  team1?: Team;
+  team2?: Team;
+}
+
 export class AddPlayersToGameDto {
   players: Player[];
 

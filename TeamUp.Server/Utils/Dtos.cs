@@ -65,3 +65,8 @@ public record UpdateGameDto(
 public record AddPlayersToGameDto(
     List<Player> Players
 );
+
+public record UpdateTeamsDto(
+    Team? Team1,
+    Team? Team2
+);

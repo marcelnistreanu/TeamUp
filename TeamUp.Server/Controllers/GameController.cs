@@ -109,4 +109,21 @@ public class GameController : ControllerBase
 
         return BadRequest(result);
     }
+
+        [HttpPut("updateGameTeams/{gameId}")]
+    public async Task<ActionResult> UpdateGameTeams(int gameId, UpdateTeamsDto dto)
+    {
+        var result = await _gameService.UpdateGameTeams(gameId, dto);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+
+        if (result.IsFailure && result.Error.Code == "record.not.found")
+        {
+            return NotFound(result.Error);
+        }
+
+        return BadRequest(result);
+    }
 }

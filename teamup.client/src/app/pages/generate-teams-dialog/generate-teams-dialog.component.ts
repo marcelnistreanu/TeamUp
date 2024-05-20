@@ -7,7 +7,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { MatIcon } from '@angular/material/icon';
 import { GameService } from 'app/services/game.service';
-import { UpdateGameDto } from 'app/models/Dtos';
+import { UpdateGameDto, UpdateTeamsDto } from 'app/models/Dtos';
+import { Team } from 'app/models/Team';
 
 @Component({
   selector: 'app-generate-teams-dialog',
@@ -40,24 +41,24 @@ export class GenerateTeamsDialogComponent implements OnInit {
     console.log(this.currentPlayerDragged);
   }
 
+  playersTeam1: Player[] = [];
+  playersTeam2: Player[] = [];
+
   onDrop(game: Game, event: any, team: string) {
     console.log('onDrop team: ', team);
     if (team == 'team1') {
-      game.team1?.players.push(this.currentPlayerDragged);
 
-      if (game.team2?.players) {
-        game.team2.players = game.team2.players.filter(
-          (p) => p.id !== this.currentPlayerDragged.id
-        );
-      }
+      this.playersTeam2 = this.playersTeam2.filter(
+        (p) => p.id !== this.currentPlayerDragged.id
+      );
+
+      this.playersTeam1.push(this.currentPlayerDragged);
     } else if (team == 'team2') {
-      game.team2?.players.push(this.currentPlayerDragged);
 
-      if (game.team1?.players) {
-        game.team1.players = game.team1.players.filter(
-          (p) => p.id !== this.currentPlayerDragged.id
-        );
-      }
+      this.playersTeam1 = this.playersTeam1.filter(
+        (p) => p.id !== this.currentPlayerDragged.id
+      );
+      this.playersTeam2.push(this.currentPlayerDragged);
     }
   }
 
@@ -69,33 +70,75 @@ export class GenerateTeamsDialogComponent implements OnInit {
   games: Game[];
 
   getGames(): void {
-      this.gameService.getGames().subscribe({
-        next: (response) => {
-          console.log(response);
-          this.games = response.value;
-        },
-        error: (error) => {
-          console.error(error);
-        },
-      })
+    this.gameService.getGames().subscribe({
+      next: (response) => {
+        console.log(response);
+        this.games = response.value;
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
   }
 
   generateTeams() {
-      this.gameService.generateTeams(this.game.id).subscribe({
-        next: (response) => {
-          console.log(response);
-          this.getGames();
-        },
-        error: (error) => {
-          console.error(error);
-        },
-      })
+    this.playersTeam1 = [];
+    this.playersTeam2 = [];
+
+    let sortedPlayers = this.game.players.sort(
+      (p1, p2) => p2.rating - p1.rating
+    );
+
+    let teamIndex = 0;
+
+    sortedPlayers.forEach((p) => {
+      if (teamIndex === 0) {
+        this.playersTeam1?.push(p);
+      } else if (teamIndex === 1) {
+        this.playersTeam2.push(p);
+      }
+      teamIndex = (teamIndex + 1) % 2;
+    });
+
+    console.log('Sorted list: ', sortedPlayers);
   }
 
-  dto: UpdateGameDto = new UpdateGameDto();
+  dto: UpdateTeamsDto = new UpdateTeamsDto();
+  team1: Team = new Team();
+  team2: Team = new Team();
+
 
   saveGame() {
-    console.log('Modified game: ', this.game);
-    
+    console.log("Players team 1: ", this.playersTeam1);
+    console.log("Players team 2: ", this.playersTeam2);
+
+    this.team1.players = this.playersTeam1;
+    this.team2.players = this.playersTeam2;
+
+    this.dto.team1= this.team1;
+    this.dto.team2 = this.team2;
+
+    this.gameService.updateGameTeams(this.game.id, this.dto).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+  }
+
+  ovr: number;
+
+  calculateRating(playersTeam: Player[]): number {
+    this.ovr = 0;
+    if (playersTeam) {
+      playersTeam.forEach((player) => {
+        if (player.rating !== undefined) {
+          this.ovr = this.ovr + player.rating;
+        }
+      });
+    }
+    return this.ovr;
   }
 }
