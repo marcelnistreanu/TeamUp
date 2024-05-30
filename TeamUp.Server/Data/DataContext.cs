@@ -20,7 +20,7 @@ public class DataContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Player>()
-            .HasOne(p => p.Team)
+            .HasMany(p => p.Teams)
             .WithMany(t => t.Players);
 
         modelBuilder.Entity<Game>()

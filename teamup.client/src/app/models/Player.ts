@@ -3,7 +3,8 @@ import { Team } from "./Team";
 
 export class Player {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   nickName: string;
   dob?: Date;

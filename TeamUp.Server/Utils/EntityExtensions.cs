@@ -8,12 +8,12 @@ public static class EntityExtensions
     {
         return new PlayerDto(
             player.Id,
-            player.Name,
+            player.FirstName,
+            player.LastName,
             player.Email,
             player.nickName,
             player.DOB,
-            player.Rating,
-            player.Games
+            player.Rating
         );
     }
 
@@ -25,10 +25,22 @@ public static class EntityExtensions
             game.Location,
             game.ScoreTeam1,
             game.ScoreTeam2,
-            game.Team1,
-            game.Team2,
+            game.Team1?.AsDto(),
+            game.Team2?.AsDto(),
             game.Status,
-            game.Players
+            game.Players.Select(p => p.AsDto()).ToList()
         );
     }
+
+    public static TeamDto AsDto(this Team team)
+    {
+        return new TeamDto(
+            team.Id,
+            team.Name,
+            team.Players.Select(p => p.AsDto()).ToList()
+        );
+    }
+
+
+
 }

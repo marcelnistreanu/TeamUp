@@ -2,14 +2,16 @@ import { Player } from "./Player";
 import { Team } from "./Team";
 
 export class CreatePlayerDto {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   nickName?: string;
   dob?: Date;
 }
 
 export class UpdatePlayerDto {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   nickName?: string;
   dob?: Date;
