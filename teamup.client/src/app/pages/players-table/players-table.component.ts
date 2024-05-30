@@ -47,7 +47,8 @@ export class PlayersTableComponent implements OnInit, OnDestroy {
   players: Player[] = [];
   displayedColumns: string[] = [
     'id',
-    'name',
+    'firstName',
+    'lastName',
     'email',
     'nickName',
     'age',

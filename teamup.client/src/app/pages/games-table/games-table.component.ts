@@ -1,7 +1,15 @@
-import { Component, Input, NgModule, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  NgModule,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { Game } from '../../models/Game';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { ButtonModule } from 'primeng/button';
@@ -72,7 +80,8 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private formBuilder: FormBuilder,
     private playerService: PlayerService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   games: Game[] = [];
@@ -94,6 +103,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
 
   addPlayersDialog: boolean = false;
   players: Player[];
+  allPlayers: Player[] = [];
 
   addPlayersToGameDto: AddPlayersToGameDto = new AddPlayersToGameDto(
     this.selectedPlayers
@@ -244,6 +254,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
             selected: false,
           }));
           console.log(this.players);
+          this.allPlayers = this.players;
         },
         error: (error) => {
           console.error(error);
@@ -261,6 +272,10 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   hideAddPlayersDialog(): void {
     this.addPlayersDialog = false;
     this.getGames();
+    this.players = [...this.allPlayers];
+    setTimeout(() => {
+      this.loadGameDetails(this.selectedGame.id);
+    }, 0); // Adjust the delay as needed
   }
 
   initializeSelectedPlayers(selectedGame: Game): void {
@@ -358,10 +373,6 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     console.log('onDrop team: ', team);
     if (team == 'team1') {
       game.team1?.players.push(this.currentPlayerDragged);
-      // const indexOfDraggedPlayer: number | undefined = game.team1?.players.findIndex(p => p.id === this.currentPlayerDragged.id);
-      // if (indexOfDraggedPlayer !== undefined && indexOfDraggedPlayer !== -1) { // Check if player found
-      //   game.team1?.players.splice(indexOfDraggedPlayer, 1);
-      // }
 
       if (game.team2?.players) {
         game.team2.players = game.team2.players.filter(
@@ -400,5 +411,73 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.push(ref.afterClosed().subscribe(() => this.getGames()));
+    // this.subscriptions.push(ref.afterClosed().subscribe(() => this.loadGameDetails(game.id)));
+  }
+
+  filterPlayers(event: Event) {
+    const input = event?.target as HTMLInputElement;
+    const query = input.value.toLowerCase();
+
+    if (query.trim() === '') {
+      this.players = [...this.allPlayers];
+    } else {
+      this.players = this.allPlayers.filter((player) =>
+        (player.firstName + ' ' + player.lastName).toLowerCase().includes(query)
+      );
+    }
+  }
+
+  @ViewChild('dt1') dt1: Table;
+
+  onSearchKeyPress(event: KeyboardEvent) {
+    if (event.key === 'Enter' && this.players.length === 1 && this.dt1) {
+      const selectedPlayer = this.players[0];
+
+      // Check if the player is already in the selectedPlayers array
+      if (!this.selectedPlayers.includes(selectedPlayer)) {
+        this.selectedPlayers.push(selectedPlayer);
+      }
+
+      this.dt1.selection = this.selectedPlayers;
+      console.log(this.selectedPlayers);
+      this.cdr.detectChanges();
+    }
+  }
+
+  clearSearch(event: MouseEvent) {
+    const input = (event.target as HTMLElement)
+      .previousElementSibling as HTMLInputElement;
+    if (input) {
+      input.value = '';
+      this.filterPlayers({ target: input } as unknown as Event);
+    }
+  }
+
+  expandedRows: { [key: number]: boolean } = {};
+
+  toggleExpandRow(game: Game): void {
+    if (this.expandedRows[game.id]) {
+      this.expandedRows[game.id] = false;
+    } else {
+      this.expandedRows[game.id] = true;
+      this.loadGameDetails(game.id);
+    }
+    console.log(this.expandedRows);
+  }
+
+  loadGameDetails(gameId: number): void {
+    this.gameService.getGameDetails(gameId).subscribe({
+      next: (response) => {
+        console.log(response);
+        let game = response.value;
+        const index = this.games.findIndex((game) => game.id === gameId);
+        if (index !== -1) {
+          this.games[index] = game;
+        }
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
   }
 }

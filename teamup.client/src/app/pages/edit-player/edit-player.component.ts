@@ -39,7 +39,8 @@ export class EditPlayerComponent implements OnInit, OnDestroy {
 
     // complete form fields with selected player's data
     this.updateForm = this.formBuilder.group({
-      name: [this.data.name, Validators.required],
+      firstName: [this.data.firstName, Validators.required],
+      lastName: [this.data.lastName, Validators.required],
       email: [this.data.email, [Validators.required, Validators.email]],
       nickName: [this.data.nickName],
       dob: [this.data.dob],
@@ -58,7 +59,8 @@ export class EditPlayerComponent implements OnInit, OnDestroy {
       // extract form data into player object
       const formValue = this.updateForm.value;
       this.playerDto = {
-        name: formValue.name,
+        firstName: formValue.firstName,
+        lastName: formValue.lastName,
         email: formValue.email,
         nickName: formValue.nickName,
         dob: formValue.dob,

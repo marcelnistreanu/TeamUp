@@ -1,72 +1,118 @@
-<button mat-icon-button type="button" (click)="onNoClick()" style="position: absolute; top: 5px; right: 5px;">
+<button
+  mat-icon-button
+  type="button"
+  (click)="onNoClick()"
+  style="position: absolute; top: 5px; right: 5px"
+>
   <mat-icon>close</mat-icon>
 </button>
 
 <div class="player-info">
   <h2 class="player-text">Edit Player</h2>
 
-  <form [formGroup]="updateForm"
-        (ngSubmit)="onSubmit()">
-
-
+  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
     <div class="form-row">
       <div class="form-group col-md-6">
-        <label for="name">Name</label>
-        <input formControlName="name" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['name'].errors}" type="text">
+        <label for="name">First Name</label>
+        <input
+          formControlName="firstName"
+          [ngClass]="{
+            'form-control is-invalid':
+              formSubmitted && updateForm.controls['firstName'].errors
+          }"
+          type="text"
+        />
 
-        @if(formSubmitted && updateForm.get('name')?.errors){
+        @if(formSubmitted && updateForm.get('firstName')?.errors){
         <div class="invalid-feedback">
-          @if(updateForm.get('name')?.errors?.['required']){
-          <span>Name is required</span>
+          @if(updateForm.get('firstName')?.errors?.['required']){
+          <span>First Name is required</span>
           }
         </div>
         }
       </div>
 
       <div class="form-group col-md-6">
+        <label for="name">Last Name</label>
+        <input
+          formControlName="lastName"
+          [ngClass]="{
+            'form-control is-invalid':
+              formSubmitted && updateForm.controls['lastName'].errors
+          }"
+          type="text"
+        />
+
+        @if(formSubmitted && updateForm.get('lastName')?.errors){
+        <div class="invalid-feedback">
+          @if(updateForm.get('lastName')?.errors?.['required']){
+          <span>Last Name is required</span>
+          }
+        </div>
+        }
+      </div>
+
+
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
         <label for="email">Email</label>
-        <input formControlName="email" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['email'].errors}" type="text">
+        <input
+          formControlName="email"
+          [ngClass]="{
+            'form-control is-invalid':
+              formSubmitted && updateForm.controls['email'].errors
+          }"
+          type="text"
+        />
 
         @if(formSubmitted && updateForm.get('email')?.errors){
         <div class="invalid-feedback">
           @if(updateForm.get('email')?.errors?.['required']){
           <span>Email is required</span>
-          }
-          @if(updateForm.get('email')?.errors?.['email']){
+          } @if(updateForm.get('email')?.errors?.['email']){
           <span>Please enter a valid email address</span>
           }
         </div>
         }
       </div>
+
+      <div class="form-group col-md-6">
+        <label for="nickName"
+          >Nickname <span class="optional">(optional)</span></label
+        >
+        <input formControlName="nickName" type="text" />
+      </div>
+
+
     </div>
 
     <div class="form-row">
       <div class="form-group col-md-6">
-        <label for="nickName">Nickname <span class="optional">(optional)</span></label>
-        <input formControlName="nickName" type="text">
+        <label for="age"
+          >Date of Birth <span class="optional">(optional)</span></label
+        >
+        <input formControlName="dob" type="date" />
       </div>
-
-      <div class="form-group col-md-6">
-        <label for="age">Date of Birth <span class="optional">(optional)</span></label>
-        <input formControlName="dob" type="date" >
-      </div>
-    </div>
-
-    <div class="form-row">
+      
       <div class="form-group col-md-6">
         <label for="age">Rating </label>
-        <input formControlName="rating" type="number" maxlength="4" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+        <input
+          formControlName="rating"
+          type="number"
+          maxlength="4"
+          oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+        />
       </div>
     </div>
-
-  
 
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 
   @if(isSuccessful){
 
-  <div class="player-info" style="padding-top: 5px;" *ngIf="isSuccessful">
+  <div class="player-info" style="padding-top: 5px" *ngIf="isSuccessful">
     <div class="alert alert-success" role="alert">
       Player updated successfully!
     </div>
@@ -76,11 +122,9 @@
 
 @if(formSubmitted && failure) {
 
-<div class="player-info" style="padding-top: 5px;">
+<div class="player-info" style="padding-top: 5px">
   <div class="alert alert-danger" role="alert">
     {{ errorMessage }}
   </div>
 </div>
 }
-
-

@@ -16,14 +16,25 @@
       </tr>
     </ng-container>
 
-    <ng-container matColumnDef="name">
+    <ng-container matColumnDef="firstName">
       <tr>
         <th mat-header-cell *matHeaderCellDef>
           <div class="table-header">
-            <div class="column-header">Name</div>
+            <div class="column-header">First Name</div>
           </div>
         </th>
-        <td mat-cell *matCellDef="let player"> {{player.name}} </td>
+        <td mat-cell *matCellDef="let player"> {{player.firstName}} </td>
+      </tr>
+    </ng-container>
+
+    <ng-container matColumnDef="lastName">
+      <tr>
+        <th mat-header-cell *matHeaderCellDef>
+          <div class="table-header">
+            <div class="column-header">Last Name</div>
+          </div>
+        </th>
+        <td mat-cell *matCellDef="let player"> {{player.lastName}} </td>
       </tr>
     </ng-container>
 

@@ -5,13 +5,26 @@
         (ngSubmit)="onSubmit()">
 
     <div class="form-group">
-      <label for="name">Name</label>
-      <input formControlName="name" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['name'].errors}" type="text">
+      <label for="firstName">First Name</label>
+      <input formControlName="firstName" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['firstName'].errors}" type="text">
 
-      @if(formSubmitted && updateForm.get('name')?.errors){
+      @if(formSubmitted && updateForm.get('firstName')?.errors){
       <div class="invalid-feedback">
-        @if(updateForm.get('name')?.errors?.['required']){
-        <span>Name is required</span>
+        @if(updateForm.get('firstName')?.errors?.['required']){
+        <span>First Name is required</span>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input formControlName="lastName" [ngClass]="{'form-control is-invalid':formSubmitted && updateForm.controls['lastName'].errors}" type="text">
+
+      @if(formSubmitted && updateForm.get('lastName')?.errors){
+      <div class="invalid-feedback">
+        @if(updateForm.get('lastName')?.errors?.['required']){
+        <span>Last Name is required</span>
         }
       </div>
       }

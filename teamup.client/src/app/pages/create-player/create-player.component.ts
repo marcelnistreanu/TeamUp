@@ -28,7 +28,8 @@ export class CreatePlayerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateForm = this.formBuilder.group({
-      name: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       nickName: [''],
       dob: [null]
@@ -49,7 +50,8 @@ export class CreatePlayerComponent implements OnInit, OnDestroy {
     if (this.updateForm.valid) {
       const formValue = this.updateForm.value;
       this.playerDto = {
-        name: formValue.name,
+        firstName: formValue.firstName,
+        lastName: formValue.lastName,
         email: formValue.email,
         nickName: formValue.nickName,
         dob: formValue.dob
