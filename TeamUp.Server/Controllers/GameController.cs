@@ -16,7 +16,7 @@ public class GameController : ControllerBase
     }
 
     [HttpGet("getGames")]
-    public async Task<ActionResult<List<GameDto>>> GetGames()
+    public async Task<ActionResult<List<GameDetailsDto>>> GetGames()
     {
         var result = await _gameService.GetGames();
         if (result.IsSuccess)
@@ -93,24 +93,17 @@ public class GameController : ControllerBase
         return NotFound();
     }
 
-    [HttpPut("generateTeams/{gameId}")]
-    public async Task<ActionResult> GenerateTeams(int gameId)
+    [HttpGet("getGameDetails/{gameId}")]
+    public async Task<ActionResult<GameDetailsDto>> GetGameDetails(int gameId)
     {
-        var result = await _gameService.GenerateTeams(gameId);
+        var result = await _gameService.GetGameDetails(gameId);
         if (result.IsSuccess)
-        {
             return Ok(result);
-        }
-
-        if (result.IsFailure && result.Error.Code == "record.not.found")
-        {
-            return NotFound(result.Error);
-        }
-
-        return BadRequest(result);
+        return NotFound();
     }
 
-        [HttpPut("updateGameTeams/{gameId}")]
+
+    [HttpPut("updateGameTeams/{gameId}")]
     public async Task<ActionResult> UpdateGameTeams(int gameId, UpdateTeamsDto dto)
     {
         var result = await _gameService.UpdateGameTeams(gameId, dto);

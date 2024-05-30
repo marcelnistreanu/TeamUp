@@ -16,12 +16,15 @@ public class PlayerService : IPlayerService
 
     public async Task<Result<Player>> AddPlayer(CreatePlayerDto playerDto)
     {
-        Name name = Name.Create(playerDto.Name).Value;
+        Name firstName = Name.Create(playerDto.FirstName).Value;
+        Name lastName = Name.Create(playerDto.LastName).Value;
+
         Email email = Email.Create(playerDto.Email).Value;
 
         Player player = new()
         {
-            Name = name.Value,
+            FirstName = firstName.Value,
+            LastName = lastName.Value,
             Email = email.Value,
             nickName = playerDto.nickName,
             DOB = playerDto.DOB,
@@ -52,12 +55,12 @@ public class PlayerService : IPlayerService
 
         var playerDtos = players.Select(player => new PlayerDto(
             Id: player.Id,
-            Name: player.Name,
+            FirstName: player.FirstName,
+            LastName: player.LastName,
             Email: player.Email,
             nickName: player.nickName,
             DOB: player.DOB,
-            Rating: player.Rating,
-            Games: player.Games
+            Rating: player.Rating
         )).ToList();
 
         return Result.Ok(playerDtos);
@@ -69,10 +72,13 @@ public class PlayerService : IPlayerService
         if (existingPlayer is null)
             return Result.Failure<Player>(Errors.General.NotFound("Player", playerId));
 
-        Name name = Name.Create(playerDto.Name).Value;
+        Name firstName = Name.Create(playerDto.FirstName).Value;
+        Name lastName = Name.Create(playerDto.LastName).Value;
+
         Email email = Email.Create(playerDto.Email).Value;
 
-        existingPlayer.Name = name.Value;
+        existingPlayer.FirstName = firstName.Value;
+        existingPlayer.LastName = lastName.Value;
         existingPlayer.nickName = playerDto.nickName;
         existingPlayer.Email = email.Value;
         existingPlayer.DOB = playerDto.DOB;

@@ -43,4 +43,8 @@ export class GameService {
   updateGameTeams(gameId: number, gameDto: UpdateTeamsDto): Observable<Result<Game>> {
     return this.http.put<Result<Game>>(`${this.baseUrl}/updateGameTeams/${gameId}`, gameDto);
   }
+
+  getGameDetails(id: number): Observable<Result<Game>> {
+    return this.http.get<Result<Game>>(`${this.baseUrl}/getGameDetails/${id}`);
+  }
 }

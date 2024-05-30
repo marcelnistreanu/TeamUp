@@ -34,28 +34,121 @@ public class GameService : IGameService
         return Result.Ok<Models.Game>(null, new MessageResponse("Game deleted successfully."));
     }
 
-    public async Task<Result<List<GameDto>>> GetGames()
+    public async Task<Result<List<GameDetailsDto>>> GetGames()
     {
-        var games = await _context.Games.Include(g => g.Players)
-            .Include(g => g.Team1)
-            .Include(g => g.Team2)
-            .ToListAsync();
-        if (games is null)
-            return Result.Failure<List<GameDto>>(Errors.General.NotFound("Games"));
 
-        var gamesDto = games.Select(game => new GameDto(
+        var games = await _context.Games
+            .Include(g => g.Players)
+            .Include(g => g.Team1).ThenInclude(t => t != null ? t.Players : null)
+            .Include(g => g.Team2).ThenInclude(t => t != null ? t.Players : null)
+            .ToListAsync();
+
+        if (games is null)
+            return Result.Failure<List<GameDetailsDto>>(Errors.General.NotFound("Games"));
+
+
+        var gamesDto = games.Select(game => new GameDetailsDto(
             Id: game.Id,
             Date: game.Date,
             Location: game.Location,
             ScoreTeam1: game.ScoreTeam1,
             ScoreTeam2: game.ScoreTeam2,
-            Team1: game.Team1,
-            Team2: game.Team2,
+            Team1: game.Team1 != null ? new TeamWithBasicPlayerDto(
+                Id: game.Team1.Id,
+                Name: game.Team1.Name ?? null,
+                Players: game.Team1.Players.Select(p => new BasicPlayerDto(
+                    Id: p.Id,
+                    FirstName: p.FirstName,
+                    LastName: p.LastName,
+                    Email: p.Email,
+                    Rating: p.Rating
+                )).ToList()
+            ) : null,
+            Team2: game.Team2 != null ? new TeamWithBasicPlayerDto(
+                Id: game.Team2!.Id,
+                Name: game.Team2.Name ?? null,
+                Players: game.Team2.Players.Select(p => new BasicPlayerDto(
+                    Id: p.Id,
+                    FirstName: p.FirstName,
+                    LastName: p.LastName,
+                    Email: p.Email,
+                    Rating: p.Rating
+                )).ToList()
+            ) : null,
             Status: game.Status,
-            Players: game.Players
+            Players: game.Players.Select(p => new BasicPlayerDto(
+                Id: p.Id,
+                FirstName: p.FirstName,
+                LastName: p.LastName,
+                Email: p.Email,
+                Rating: p.Rating
+            )).ToList()
         )).ToList();
 
         return Result.Ok(gamesDto);
+    }
+
+    public async Task<Result<GameDetailsDto>> GetGameDetails(int gameId)
+    {
+        var game = await _context.Games
+                .Include(g => g.Players)
+                .Include(g => g.Team1).ThenInclude(t => t!.Players)
+                .Include(g => g.Team2).ThenInclude(t => t!.Players)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+
+        if (game is null)
+            return Result.Failure<GameDetailsDto>(Errors.General.NotFound("Game"));
+
+
+        var team1 = game.Team1;
+        var team2 = game.Team2;
+
+        if (team1 is null || team2 is null)
+        {
+            string teamNotFound = team1 is null ? "Team1" : "Team2";
+            return Result.Failure<GameDetailsDto>(Errors.General.NotFound(teamNotFound));
+        }
+
+
+        var gameDto = new GameDetailsDto(
+            Id: game.Id,
+            Date: game.Date,
+            Location: game.Location,
+            ScoreTeam1: game.ScoreTeam1,
+            ScoreTeam2: game.ScoreTeam2,
+            Status: game.Status,
+            Team1: game.Team1 != null ? new TeamWithBasicPlayerDto(
+                Id: team1!.Id,
+                Name: team1.Name ?? null,
+                Players: team1.Players.Select(p => new BasicPlayerDto(
+                    Id: p.Id,
+                    FirstName: p.FirstName,
+                    LastName: p.LastName,
+                    Email: p.Email,
+                    Rating: p.Rating
+                )).ToList()
+            ) : null,
+            Team2: team2 != null ? new TeamWithBasicPlayerDto(
+                Id: team2!.Id,
+                Name: team2.Name ?? null,
+                Players: team2.Players.Select(p => new BasicPlayerDto(
+                    Id: p.Id,
+                    FirstName: p.FirstName,
+                    LastName: p.LastName,
+                    Email: p.Email,
+                    Rating: p.Rating
+                )).ToList()
+            ) : null,
+            Players: game.Players.Select(p => new BasicPlayerDto(
+                Id: p.Id,
+                FirstName: p.FirstName,
+                LastName: p.LastName,
+                Email: p.Email,
+                Rating: p.Rating
+            )).ToList()
+        );
+
+        return Result.Ok(gameDto);
     }
 
     public async Task<Result<Models.Game>> UpdateGame(int gameId, UpdateGameDto gameDto)
@@ -64,13 +157,38 @@ public class GameService : IGameService
         if (existingGame is null)
             return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
 
+
+
+
         existingGame.Date = gameDto.Date;
         existingGame.Location = gameDto.Location;
         existingGame.ScoreTeam1 = gameDto.ScoreTeam1;
         existingGame.ScoreTeam2 = gameDto.ScoreTeam2;
-        existingGame.Team1 = gameDto.Team1;
-        existingGame.Team2 = gameDto.Team2;
         existingGame.Status = gameDto.Status;
+
+        if (gameDto.Team1 != null)
+        {
+            var team1 = await _context.Teams.FindAsync(gameDto.Team1.Id);
+            if (team1 is null)
+                return Result.Failure<Models.Game>(Errors.General.NotFound("Team", gameDto.Team1.Id));
+            existingGame.Team1 = team1;
+        }
+        else
+        {
+            existingGame.Team1 = null;
+        }
+
+        if (gameDto.Team2 != null)
+        {
+            var team2 = await _context.Teams.FindAsync(gameDto.Team2.Id);
+            if (team2 is null)
+                return Result.Failure<Models.Game>(Errors.General.NotFound("Team", gameDto.Team2.Id));
+            existingGame.Team2 = team2;
+        }
+        else
+        {
+            existingGame.Team2 = null;
+        }
 
         await _context.SaveChangesAsync();
         return Result.Ok<Models.Game>(existingGame, new MessageResponse("Game updated successfully."));
@@ -133,92 +251,80 @@ public class GameService : IGameService
         return Result.Ok<Models.Game>(game, new MessageResponse($"Game with id: {gameId} found."));
     }
 
-    public async Task<Result<Models.Game>> GenerateTeams(int gameId)
-    {
-        var game = await _context.Games
-            .Include(g => g.Players)
-            .FirstOrDefaultAsync(g => g.Id == gameId);
-
-        if (game is null)
-            return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
-
-        if (game.Players.Count < 4)
-            return Result.Failure<Models.Game>(Errors.Game.MinPlayers());
-
-        var sortedPlayers = game.Players.OrderByDescending(p => p.Rating).ToList();
-
-        Team team1 = new Team(new List<Models.Player>());
-        Team team2 = new Team(new List<Models.Player>());
-
-        game.Team1 = team1;
-        game.Team2 = team2;
-
-
-        int teamIndex = 0;
-
-        foreach (var player in sortedPlayers)
-        {
-            if (teamIndex == 0)
-            {
-                team1.Players.Add(player);
-            }
-            else
-            {
-                team2.Players.Add(player);
-
-            }
-            teamIndex = (teamIndex + 1) % 2;
-        }
-
-        await _context.SaveChangesAsync();
-
-        return Result.Ok<Models.Game>(game, new MessageResponse("Teams generated."));
-    }
 
     public async Task<Result<Models.Game>> UpdateGameTeams(int gameId, UpdateTeamsDto dto)
     {
 
         var game = await _context.Games
-            .Include(g => g.Players)
+            // .Include(g => g.Players)
+            .Include(g => g.Team1)
+            .Include(g => g.Team2)
+            // .AsNoTracking()
             .FirstOrDefaultAsync(g => g.Id == gameId);
 
-        // if (game != null)
-        //     _context.Entry(game).State = EntityState.Detached;
 
         if (game is null)
             return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
-        
-
-        // var team1 = await _context.Teams.FirstOrDefaultAsync(t => t.Id == dto.Team1!.Id);
-        // if(team1 is null)
-        //     game.Team1=dto.Team1;
-        // else
-        //     _context.Attach(dto.Team1);
-
-        // var team2 = await _context.Teams.FirstOrDefaultAsync(t => t.Id == dto.Team2!.Id);
-        // if(team1 is null)
-        //     game.Team2=dto.Team2;
-        // else
-        //     _context.Attach(dto.Team2);
-
-        // Team newTeam1 = new Team();
-        // Team newTeam2 = new Team();
-
-        // await _context.Teams.AddRangeAsync(newTeam1, newTeam2);
-
-        // game.Team1 = newTeam1;
-        // game.Team2 = newTeam2;
-
-        game.Team1 = dto.Team1;
-        game.Team2 = dto.Team2;
-
-        // game.Team1.Players = dto.Team1!.Players;
-        // game.Team2.Players = dto.Team2!.Players;
 
 
-        // _context.Attach(game);
-        // _context.Entry(game).State = EntityState.Modified;
-        
+        // Update Team1 if provided
+        if (dto.Team1 != null)
+        {
+
+            var newTeam1 = new Team
+            {
+                // Set other properties of the team as needed
+                // For example: Name
+                Name = dto.Team1.Name
+            };
+
+            if (dto.Team1.Players != null && dto.Team1.Players.Any())
+            {
+                foreach (var playerDto in dto.Team1.Players)
+                {
+                    var player = await _context.Players.FirstOrDefaultAsync(p => p.Id == playerDto.Id);
+                    if (player is not null)
+                        newTeam1.Players.Add(player); // Add player to the team
+                }
+            }
+            _context.Teams.Add(newTeam1);
+            await _context.SaveChangesAsync();
+            game.Team1 = newTeam1;
+        }
+        else
+        {
+            game.Team1 = null; // Clear Team1 if not provided
+        }
+
+        // Update Team1 if provided
+        if (dto.Team2 != null)
+        {
+
+            var newTeam2 = new Team
+            {
+                // Set other properties of the team as needed
+                // For example: Name
+                Name = dto.Team2.Name
+            };
+
+            if (dto.Team2.Players != null && dto.Team2.Players.Any())
+            {
+                foreach (var playerDto in dto.Team2.Players)
+                {
+                    var player = await _context.Players.FirstOrDefaultAsync(p => p.Id == playerDto.Id);
+                    if (player is not null)
+                        newTeam2.Players.Add(player); // Add player to the team
+                }
+            }
+            _context.Teams.Add(newTeam2);
+            await _context.SaveChangesAsync();
+            game.Team2 = newTeam2;
+        }
+        else
+        {
+            game.Team2 = null; // Clear Team1 if not provided
+        }
+
         await _context.SaveChangesAsync();
 
         return Result.Ok<Models.Game>(game, new MessageResponse("Teams updated."));

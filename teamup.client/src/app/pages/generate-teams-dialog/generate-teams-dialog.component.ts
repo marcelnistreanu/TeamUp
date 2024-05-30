@@ -27,8 +27,16 @@ export class GenerateTeamsDialogComponent implements OnInit {
     private gameService: GameService
   ) {}
 
+  playersTeam1: Player[] = [];
+  playersTeam2: Player[] = [];
+
   ngOnInit(): void {
     console.log('Game in this dialog', this.game);
+
+    if(this.game.team1)
+      this.playersTeam1 = this.game.team1?.players;
+    if(this.game.team2)
+      this.playersTeam2 = this.game.team2.players;
   }
 
   onNoClick(): void {
@@ -41,8 +49,6 @@ export class GenerateTeamsDialogComponent implements OnInit {
     console.log(this.currentPlayerDragged);
   }
 
-  playersTeam1: Player[] = [];
-  playersTeam2: Player[] = [];
 
   onDrop(game: Game, event: any, team: string) {
     console.log('onDrop team: ', team);
@@ -82,8 +88,6 @@ export class GenerateTeamsDialogComponent implements OnInit {
   }
 
   generateTeams() {
-    this.playersTeam1 = [];
-    this.playersTeam2 = [];
 
     let sortedPlayers = this.game.players.sort(
       (p1, p2) => p2.rating - p1.rating
