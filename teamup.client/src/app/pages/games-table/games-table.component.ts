@@ -43,7 +43,6 @@ import { Player } from '../../models/Player';
 import { PlayerService } from '../../services/player.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Team } from 'app/models/Team';
-// import { DragDropModule } from 'primeng/dragdrop';
 import { DialogService } from 'primeng/dynamicdialog';
 import { GenerateTeamsDialogComponent } from '../generate-teams-dialog/generate-teams-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -269,13 +268,22 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.selectedGame = game;
   }
 
-  hideAddPlayersDialog(): void {
+  hideAddPlayersDialog(message?: { severity: string; summary: string; detail: string }): void {
     this.addPlayersDialog = false;
     this.getGames();
     this.players = [...this.allPlayers];
-    setTimeout(() => {
-      this.loadGameDetails(this.selectedGame.id);
-    }, 0); // Adjust the delay as needed
+
+    if (message) {
+      setTimeout(() => {
+          this.messageService.add({
+              key: 'selectPlayers',
+              severity: message.severity,
+              summary: message.summary,
+              detail: message.detail,
+              life: 3000,
+          });
+      }, 50);
+  }
   }
 
   initializeSelectedPlayers(selectedGame: Game): void {
@@ -306,26 +314,27 @@ export class GamesTableComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             console.log(response);
+
+            let message;
             if (
-              response.message.message !=
+              response.message.message !==
               "No changes were made to the game's players."
             ) {
-              this.messageService.add({
-                key: 'selectPlayers',
+              message = {
                 severity: 'success',
                 summary: 'Success!',
                 detail: response.message.message,
-                life: 3000,
-              });
+              };
             } else {
-              this.messageService.add({
-                key: 'selectPlayers',
+              message = {
                 severity: 'info',
                 summary: 'Info',
                 detail: response.message.message,
-                life: 3000,
-              });
+              };
             }
+
+            // Hide the dialog and show the message
+            this.hideAddPlayersDialog(message);
           },
           error: (error) => {
             console.error(error);
@@ -334,19 +343,20 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     );
   }
 
-  generateTeams(gameId: number) {
-    this.subscriptions.push(
-      this.gameService.generateTeams(gameId).subscribe({
-        next: (response) => {
-          console.log(response);
-          this.getGames();
-        },
-        error: (error) => {
-          console.error(error);
-        },
-      })
-    );
-  }
+  // generateTeams(gameId: number) {
+  //   this.subscriptions.push(
+  //     this.gameService.generateTeams(gameId).subscribe({
+  //       next: (response) => {
+  //         console.log(response);
+  //         this.getGames();
+  //       },
+  //       error: (error) => {
+  //         console.error(error);
+  //       },
+  //     })
+  //   );
+  // }
+
   ovr: number;
 
   calculateRating(team: Team): number {
@@ -361,45 +371,45 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     return this.ovr;
   }
 
-  currentPlayerDragged: Player;
+  // currentPlayerDragged: Player;
 
-  onDragStart(player: Player) {
-    console.log('onDragStart');
-    this.currentPlayerDragged = player;
-    console.log(this.currentPlayerDragged);
-  }
+  // onDragStart(player: Player) {
+  //   console.log('onDragStart');
+  //   this.currentPlayerDragged = player;
+  //   console.log(this.currentPlayerDragged);
+  // }
 
-  onDrop(game: Game, event: any, team: string) {
-    console.log('onDrop team: ', team);
-    if (team == 'team1') {
-      game.team1?.players.push(this.currentPlayerDragged);
+  // onDrop(game: Game, event: any, team: string) {
+  //   console.log('onDrop team: ', team);
+  //   if (team == 'team1') {
+  //     game.team1?.players.push(this.currentPlayerDragged);
 
-      if (game.team2?.players) {
-        game.team2.players = game.team2.players.filter(
-          (p) => p.id !== this.currentPlayerDragged.id
-        );
-      }
-    } else if (team == 'team2') {
-      game.team2?.players.push(this.currentPlayerDragged);
+  //     if (game.team2?.players) {
+  //       game.team2.players = game.team2.players.filter(
+  //         (p) => p.id !== this.currentPlayerDragged.id
+  //       );
+  //     }
+  //   } else if (team == 'team2') {
+  //     game.team2?.players.push(this.currentPlayerDragged);
 
-      if (game.team1?.players) {
-        game.team1.players = game.team1.players.filter(
-          (p) => p.id !== this.currentPlayerDragged.id
-        );
-      }
-    }
-  }
+  //     if (game.team1?.players) {
+  //       game.team1.players = game.team1.players.filter(
+  //         (p) => p.id !== this.currentPlayerDragged.id
+  //       );
+  //     }
+  //   }
+  // }
 
-  onDragOver(event: any) {
-    console.log('onDragOver');
-    event.preventDefault();
-  }
+  // onDragOver(event: any) {
+  //   console.log('onDragOver');
+  //   event.preventDefault();
+  // }
 
   generateTeamsDialog: boolean = false;
 
-  hideGenerateTeamsDialog() {
-    this.generateTeamsDialog = false;
-  }
+  // hideGenerateTeamsDialog() {
+  //   this.generateTeamsDialog = false;
+  // }
 
   openGenerateTeamsDialog(game: Game) {
     this.generateTeamsDialog = true;
@@ -411,7 +421,6 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.push(ref.afterClosed().subscribe(() => this.getGames()));
-    // this.subscriptions.push(ref.afterClosed().subscribe(() => this.loadGameDetails(game.id)));
   }
 
   filterPlayers(event: Event) {
@@ -453,31 +462,31 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     }
   }
 
-  expandedRows: { [key: number]: boolean } = {};
+  // expandedRows: { [key: number]: boolean } = {};
 
-  toggleExpandRow(game: Game): void {
-    if (this.expandedRows[game.id]) {
-      this.expandedRows[game.id] = false;
-    } else {
-      this.expandedRows[game.id] = true;
-      this.loadGameDetails(game.id);
-    }
-    console.log(this.expandedRows);
-  }
+  // toggleExpandRow(game: Game): void {
+  //   if (this.expandedRows[game.id]) {
+  //     this.expandedRows[game.id] = false;
+  //   } else {
+  //     this.expandedRows[game.id] = true;
+  //     this.loadGameDetails(game.id);
+  //   }
+  //   console.log(this.expandedRows);
+  // }
 
-  loadGameDetails(gameId: number): void {
-    this.gameService.getGameDetails(gameId).subscribe({
-      next: (response) => {
-        console.log(response);
-        let game = response.value;
-        const index = this.games.findIndex((game) => game.id === gameId);
-        if (index !== -1) {
-          this.games[index] = game;
-        }
-      },
-      error: (error) => {
-        console.error(error);
-      },
-    });
-  }
+  // loadGameDetails(gameId: number): void {
+  //   this.gameService.getGameDetails(gameId).subscribe({
+  //     next: (response) => {
+  //       console.log(response);
+  //       let game = response.value;
+  //       const index = this.games.findIndex((game) => game.id === gameId);
+  //       if (index !== -1) {
+  //         this.games[index] = game;
+  //       }
+  //     },
+  //     error: (error) => {
+  //       console.error(error);
+  //     },
+  //   });
+  // }
 }
