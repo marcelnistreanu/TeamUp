@@ -119,4 +119,38 @@ public class GameController : ControllerBase
 
         return BadRequest(result);
     }
+
+    [HttpDelete("resetGameTeams/{gameId}")]
+    public async Task<ActionResult> ResetTeams(int gameId)
+    {
+        var result = await _gameService.ResetTeams(gameId);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+
+        if (result.IsFailure && result.Error.Code == "record.not.found")
+        {
+            return NotFound(result.Error);
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpPut("revertGame/{gameId}")]
+    public async Task<ActionResult> RevertGame(int gameId)
+    {
+        var result = await _gameService.RevertGame(gameId);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+
+        if (result.IsFailure && result.Error.Code == "record.not.found")
+        {
+            return NotFound(result.Error);
+        }
+
+        return BadRequest(result);
+    }
 }

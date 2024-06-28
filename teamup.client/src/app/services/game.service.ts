@@ -47,4 +47,17 @@ export class GameService {
   getGameDetails(id: number): Observable<Result<Game>> {
     return this.http.get<Result<Game>>(`${this.baseUrl}/getGameDetails/${id}`);
   }
+
+  resetTeams(id: number): Observable<Result<Game>> {
+    return this.http.delete<Result<Game>>(`${this.baseUrl}/resetGameTeams/${id}`);
+  }
+
+  getGameById(id: number): Observable<Result<Game>> {
+    return this.http.get<Result<Game>>(`${this.baseUrl}/getGame/${id}`);
+  }
+
+  revertGame(id: number): Observable<Result<Game>> {
+    return this.http.put<Result<Game>>(`${this.baseUrl}/revertGame/${id}`, null);
+  }
+  
 }

@@ -1,0 +1,245 @@
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Generate Teams</h1>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Generate Teams Section -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <!-- Groups Title -->
+          <h2 class="mb-3">Groups</h2>
+
+          <!-- Groups Display -->
+          <div class="form-row w-100 d-flex justify-content-center">
+            <div
+              class="col-3 group-column text-start"
+              *ngFor="let group of playersGroups; let i = index"
+            >
+              <h3 class="text-center">Group {{ i + 1 }}</h3>
+              <div *ngFor="let player of group">
+                {{ player.firstName }} {{ player.lastName }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Groups and Generate Teams Buttons -->
+        <div class="card-footer d-flex justify-content-center">
+          <!-- Add Groups Button -->
+          <button class="btn btn-primary mx-3" (click)="addGroups()">
+            Add Groups
+          </button>
+
+          <!-- Generate Teams Button -->
+          <button class="btn btn-primary" (click)="generateTeams()">
+            Generate Teams
+          </button>
+        </div>
+      </div>
+
+      <!-- Team Display: Side-by-Side -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row">
+            <!-- Team 1 -->
+            <div class="col-md-6">
+              <h2>Team 1</h2>
+              <div
+                class="d-flex align-items-center justify-content-between mb-3"
+              >
+                <div>
+                  <strong>OVR:</strong> {{ calculateRating(playersTeam1) }}
+                </div>
+              </div>
+              <div class="player-list example-list">
+                <ul class="list-none flex flex-column gap-2 p-0 m-0">
+                  <li
+                    *ngFor="let player of playersTeam1"
+                    class="player p-2 border-round shadow-1 example-box"
+                    [ngClass]="{ 'grouped-player': player.isGrouped }"
+                  >
+                    {{ player.firstName }} {{ player.lastName }}
+                    <div class="btn-group dropup">
+                      <button
+                        type="button"
+                        class="btn btn-secondary dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      ></button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a
+                            style="cursor: pointer"
+                            class="dropdown-item"
+                            (click)="movePlayer(player, 'team2')"
+                            >Move to Team 2</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Team 2 -->
+            <div class="col-md-6">
+              <h2>Team 2</h2>
+              <div
+                class="d-flex align-items-center justify-content-between mb-3"
+              >
+                <div>
+                  <strong>OVR:</strong> {{ calculateRating(playersTeam2) }}
+                </div>
+              </div>
+              <div class="player-list example-list">
+                <ul class="list-none flex flex-column gap-2 p-0 m-0">
+                  <li
+                    *ngFor="let player of playersTeam2"
+                    class="player p-2 border-round shadow-1 example-box"
+                    [ngClass]="{ 'grouped-player': player.isGrouped }"
+                  >
+                    {{ player.firstName }} {{ player.lastName }}
+                    <div class="btn-group dropup">
+                      <button
+                        type="button"
+                        class="btn btn-secondary dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      ></button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a
+                            style="cursor: pointer"
+                            class="dropdown-item"
+                            (click)="movePlayer(player, 'team1')"
+                            >Move to Team 1</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Save and Restore Teams Icons -->
+        <div class="card-footer text-center mt-3">
+          <i
+            class="pi pi-save mx-3"
+            (click)="saveCurrentTeamsTemporarily()"
+            pTooltip="Save teams temporarily"
+            tooltipPosition="top"
+            style="font-size: 1.5em; cursor: pointer"
+          ></i>
+          <i
+            class="pi pi-refresh"
+            (click)="restoreSavedTeams()"
+            pTooltip="Undo to last saved teams"
+            tooltipPosition="top"
+            style="font-size: 1.5em; cursor: pointer"
+          ></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar for Saved Teams -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Saved Teams</h2>
+          <ul class="list-group">
+            <li
+              class="list-group-item"
+              *ngFor="let savedTeam of temporarilySavedTeams; let i = index"
+            >
+              Option {{ i + 1 }}: OVR {{ savedTeam.team1Ovr }} - {{ savedTeam.team2Ovr }}
+              <i
+                class="pi pi-refresh mx-3"
+                (click)="restoreSavedOption(savedTeam)"
+                pTooltip="Undo to this option"
+                tooltipPosition="top"
+                style="font-size: 1.5em; cursor: pointer"
+              ></i>
+            </li>
+            <li
+              class="list-group-item text-muted"
+              *ngIf="temporarilySavedTeams.length === 0"
+            >
+              No saved teams
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-center">
+    <button class="btn btn-primary w-25 m-3 " (click)="saveGame()">Save</button>
+  </div>
+</div>
+
+<!-- Create player groups -->
+<p-dialog
+  [(visible)]="addGroupPlayersDialog"
+  [draggable]="false"
+  [style]="{ width: '35vw', height: '90vh' }"
+  header="Add Groups"
+  [modal]="true"
+  styleClass="p-fluid"
+  (onHide)="hideAddGroupsPlayersDialog()"
+>
+  <ng-template pTemplate="content">
+    <div style="display: flex; flex-direction: column; height: 100%">
+      <div style="flex-grow: 1; overflow-y: auto">
+        <p-table
+          [scrollable]="true"
+          scrollHeight="flex"
+          selectionMode="multiple"
+          #dt1
+          [value]="availablePlayersInAddGroupsDialog"
+          [(selection)]="selectedPlayers"
+        >
+          <ng-template pTemplate="caption">
+            <div class="flex">
+              <span class="p-input-icon-left p-input-icon-right ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Search player" />
+                <!-- <i class="pi pi-times" (click)="clearSearch($event)"></i> -->
+              </span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Name</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-player let-rowIndex="rowIndex">
+            <tr
+              [pSelectableRow]="player"
+              [pSelectableRowIndex]="rowIndex"
+              [ngClass]="{ 'selected-row': selectedPlayers.includes(player) }"
+            >
+              <td>{{ player.firstName }} {{ player.lastName }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <p style="padding-top: 20px">
+        Number of selected players:
+        <strong>{{ selectedPlayers.length }}</strong>
+      </p>
+      <div style="padding-top: 10px; flex-shrink: 0">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="addPlayersToGroup()"
+        >
+          Add group
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

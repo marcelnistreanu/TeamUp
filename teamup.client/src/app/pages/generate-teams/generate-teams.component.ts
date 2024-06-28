@@ -1,29 +1,30 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
-  ElementRef,
-  Inject,
-  Input,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
+import { UpdateTeamsDto } from 'app/models/Dtos';
 import { Game } from 'app/models/Game';
 import { Player } from 'app/models/Player';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { MatIcon } from '@angular/material/icon';
-import { GameService } from 'app/services/game.service';
-import { UpdateGameDto, UpdateTeamsDto } from 'app/models/Dtos';
 import { Team } from 'app/models/Team';
-import { Table, TableModule } from 'primeng/table';
+import { GameService } from 'app/services/game.service';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { MenuItem } from 'primeng/api';
-import { Menu, MenuModule } from 'primeng/menu';
+import { MenuModule } from 'primeng/menu';
+import { Table, TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
+import { generate } from 'rxjs';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-generate-teams-dialog',
+  selector: 'app-generate-teams',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,37 +34,58 @@ import { Menu, MenuModule } from 'primeng/menu';
     TableModule,
     InputTextModule,
     MenuModule,
+    ToastModule,
+    TooltipModule
   ],
-  templateUrl: './generate-teams-dialog.component.html',
-  styleUrl: './generate-teams-dialog.component.css',
+  providers: [MessageService],
+  templateUrl: './generate-teams.component.html',
+  styleUrl: './generate-teams.component.css',
 })
-export class GenerateTeamsDialogComponent implements OnInit {
-  generateTeamsDialog: boolean = false;
-  currentPlayerDragged: Player;
-
-  constructor(
-    public dialogRef: MatDialogRef<GenerateTeamsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public game: Game,
-    private gameService: GameService,
-    private cdr: ChangeDetectorRef
-  ) {}
+export class GenerateTeamsComponent implements OnInit {
+  gameId: number;
+  game: Game;
 
   playersTeam1: Player[] = [];
   playersTeam2: Player[] = [];
   selectedPlayers: Player[] = [];
   availablePlayersInAddGroupsDialog: Player[] = [];
 
+  temporarilySavedPlayersTeam1: Player[] = [];
+  temporarilySavedPlayersTeam2: Player[] = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private gameService: GameService,
+    private cdr: ChangeDetectorRef,
+    private location: Location,
+    private messageService: MessageService
+  ) {}
+
   ngOnInit(): void {
-    console.log('Game in this dialog', this.game);
+    this.route.params.subscribe((params) => {
+      this.gameId = +params['gameId'];
+    });
 
-    if (this.game.team1) this.playersTeam1 = this.game.team1?.players;
-    if (this.game.team2) this.playersTeam2 = this.game.team2.players;
+    this.gameService.getGameById(this.gameId).subscribe({
+      next: (response) => {
+        console.log(response);
+        this.game = response.value;
 
-    this.availablePlayersInAddGroupsDialog = [...this.game.players];
-  }
+        if (this.game.team1) this.playersTeam1 = this.game.team1.players;
+        if (this.game.team2) this.playersTeam2 = this.game.team2.players;
 
-  onNoClick(): void {
-    this.dialogRef.close();
+        this.availablePlayersInAddGroupsDialog = [...this.game.players];
+
+        // if there are no teams for game, generate teams when page opened
+        if(!this.game.team1 && !this.game.team2) {
+          this.generateTeams();
+        }
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
   }
 
   games: Game[];
@@ -91,7 +113,13 @@ export class GenerateTeamsDialogComponent implements OnInit {
 
   playersGroups: Player[][] = [];
 
-  colorClasses: string[] = ['group-1', 'group-2', 'group-3', 'group-4', 'group-5'];
+  colorClasses: string[] = [
+    'group-1',
+    'group-2',
+    'group-3',
+    'group-4',
+    'group-5',
+  ];
 
   addPlayersToGroup(): void {
     if (this.selectedPlayers.length > 0) {
@@ -214,6 +242,75 @@ export class GenerateTeamsDialogComponent implements OnInit {
     }
   }
 
+  temporarilySavedTeams: any[] = [];
+
+  calculateTeamRating(temporarilySavedTeam: Player[]): number {
+    let ovr = 0;
+    temporarilySavedTeam.forEach(player =>{
+      ovr += player.rating;
+    })
+    return ovr;
+  }
+
+  saveCurrentTeamsTemporarily() {
+    this.temporarilySavedPlayersTeam1 = [...this.playersTeam1];
+    this.temporarilySavedPlayersTeam2 = [...this.playersTeam2];
+    const message = {
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Teams have been saved',
+      life: 3000,
+    };
+
+    const savedTeam = {
+      team1: this.temporarilySavedPlayersTeam1,
+      team2: this.temporarilySavedPlayersTeam2,
+      team1Ovr: this.calculateTeamRating(this.temporarilySavedPlayersTeam1),
+      team2Ovr: this.calculateTeamRating(this.temporarilySavedPlayersTeam2)
+    }
+
+    this.temporarilySavedTeams.push(savedTeam);
+    this.messageService.add(message);
+  }
+
+  restoreSavedTeams() {
+    if (this.temporarilySavedPlayersTeam1.length == 0 && this.temporarilySavedPlayersTeam2.length == 0) {
+      const message = {
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No saved teams to restore',
+        life: 3000,
+      };
+
+      this.messageService.add(message);
+      return;
+    }
+    this.playersTeam1 = [...this.temporarilySavedPlayersTeam1];
+    this.playersTeam2 = [...this.temporarilySavedPlayersTeam2];
+
+    const message = {
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Teams have been restored',
+      life: 3000,
+    };
+
+    this.messageService.add(message);
+  }
+
+  restoreSavedOption(savedTeam: any): void {
+    this.playersTeam1 = [...savedTeam.team1];
+    this.playersTeam2 = [...savedTeam.team2];
+
+    const message = {
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Teams have been restored',
+      life: 3000,
+    };
+    this.messageService.add(message);
+  }
+
   selectedPlayer: Player | null = null;
 
   // Function to move player between teams
@@ -241,16 +338,27 @@ export class GenerateTeamsDialogComponent implements OnInit {
     this.gameService.updateGameTeams(this.game.id, this.dto).subscribe({
       next: (response) => {
         console.log(response);
+        const message = {
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Teams updated successfully',
+          key: 'savedTeams',
+          life: 3000,
+        };
+
+        localStorage.setItem('toastMessage', JSON.stringify(message));
+        this.location.back();
       },
       error: (error) => {
         console.error(error);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update teams',
+        });
       },
     });
-    
-    setTimeout(() => {
-      this.onNoClick();
-    },
-    100);
   }
 
   ovr: number;
