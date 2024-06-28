@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TeamUp.Server.Data;
 
@@ -10,9 +11,11 @@ using TeamUp.Server.Data;
 namespace TeamUp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240625113130_AddPlayerRatingHistory")]
+    partial class AddPlayerRatingHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
@@ -44,10 +47,13 @@ namespace TeamUp.Server.Migrations
                     b.Property<int>("GameId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("NewRating")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("PlayerId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Rating")
+                    b.Property<int>("PreviousRating")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");

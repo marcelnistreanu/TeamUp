@@ -13,5 +13,7 @@ public interface IGameService
     Task<Result<Game>> GetGameById(int gameId);
     Task<Result<Game>> UpdateGameTeams(int gameId, UpdateTeamsDto gameDto);
     Task<Result<GameDetailsDto>> GetGameDetails(int gameId);
+    Task<Result<Game>> ResetTeams(int gameId);
+    Task<Result<Game>> RevertGame(int gameId);
 
 }

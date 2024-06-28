@@ -29,6 +29,7 @@ export class CreateGameComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   failure = false;
   message: string;
+  minDate: Date = new Date();
 
   subscriptions: Subscription[] = [];
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeamUp.Server.Data;
+using TeamUp.Server.Migrations;
 using TeamUp.Server.Models;
 using TeamUp.Server.Utils;
 using static TeamUp.Server.Utils.Errors;
@@ -153,45 +154,125 @@ public class GameService : IGameService
 
     public async Task<Result<Models.Game>> UpdateGame(int gameId, UpdateGameDto gameDto)
     {
-        var existingGame = await _context.Games.FindAsync(gameId);
+        var existingGame = await _context.Games
+            .Include(g => g.Team1).ThenInclude(t => t.Players)
+            .Include(g => g.Team2).ThenInclude(t => t.Players)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+
         if (existingGame is null)
             return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
-
-
-
 
         existingGame.Date = gameDto.Date;
         existingGame.Location = gameDto.Location;
         existingGame.ScoreTeam1 = gameDto.ScoreTeam1;
         existingGame.ScoreTeam2 = gameDto.ScoreTeam2;
-        existingGame.Status = gameDto.Status;
+        
+        existingGame.Status = gameDto.Status ?? "Completed";
 
-        if (gameDto.Team1 != null)
+        var playerRatingHistories = new List<PlayerRatingHistory>();
+
+        // store ratings before update
+        foreach (var player in existingGame.Team1?.Players)
         {
-            var team1 = await _context.Teams.FindAsync(gameDto.Team1.Id);
-            if (team1 is null)
-                return Result.Failure<Models.Game>(Errors.General.NotFound("Team", gameDto.Team1.Id));
-            existingGame.Team1 = team1;
-        }
-        else
-        {
-            existingGame.Team1 = null;
+            var existingHistory = await _context.PlayerRatingHistory
+                .FirstOrDefaultAsync(h => h.Player.Id == player.Id && h.Game.Id == existingGame.Id);
+
+            if (existingHistory == null)
+            {
+                var history = new PlayerRatingHistory
+                {
+                    Player = player,
+                    Game = existingGame,
+                    Rating = player.Rating,
+                    ChangeDate = DateTime.UtcNow
+                };
+                playerRatingHistories.Add(history);
+            }
+            else
+            {
+                existingHistory.Rating = player.Rating;
+                existingHistory.ChangeDate = DateTime.UtcNow;
+            }
+
         }
 
-        if (gameDto.Team2 != null)
+        foreach (var player in existingGame.Team2?.Players)
         {
-            var team2 = await _context.Teams.FindAsync(gameDto.Team2.Id);
-            if (team2 is null)
-                return Result.Failure<Models.Game>(Errors.General.NotFound("Team", gameDto.Team2.Id));
-            existingGame.Team2 = team2;
+            var existingHistory = await _context.PlayerRatingHistory
+                .FirstOrDefaultAsync(h => h.Player.Id == player.Id && h.Game.Id == existingGame.Id);
+
+            if (existingHistory == null)
+            {
+                var history = new PlayerRatingHistory
+                {
+                    Player = player,
+                    Game = existingGame,
+                    Rating = player.Rating,
+                    ChangeDate = DateTime.UtcNow
+                };
+                playerRatingHistories.Add(history);
+            }
+            else
+            {
+                existingHistory.Rating = player.Rating;
+                existingHistory.ChangeDate = DateTime.UtcNow;
+            }
         }
-        else
-        {
-            existingGame.Team2 = null;
-        }
+
+        _context.PlayerRatingHistory.AddRange(playerRatingHistories);
+
+        UpdatePlayerRating(existingGame.Team1?.Players, gameDto.ScoreTeam1 > gameDto.ScoreTeam2);
+        UpdatePlayerRating(existingGame.Team2?.Players, gameDto.ScoreTeam2 > gameDto.ScoreTeam1);
 
         await _context.SaveChangesAsync();
         return Result.Ok<Models.Game>(existingGame, new MessageResponse("Game updated successfully."));
+    }
+
+    private void UpdatePlayerRating(List<Models.Player>? players, bool winningTeam)
+    {
+        if (players != null)
+        {
+            foreach (var player in players)
+            {
+                if (winningTeam)
+                {
+                    player.Rating += 150;
+                }
+                else
+                {
+                    player.Rating -= 150;
+                }
+            }
+        }
+    }
+
+    public async Task<Result<Models.Game>> RevertGame(int gameId)
+    {
+        var existingGame = await _context.Games
+            .Include(g => g.Team1).ThenInclude(t => t.Players)
+            .Include(g => g.Team2).ThenInclude(t => t.Players)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+
+        if (existingGame == null)
+            return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
+
+        var previousRatings = await _context.PlayerRatingHistory
+            .Where(h => h.Game.Id == gameId)
+            .ToListAsync();
+
+        foreach (var history in previousRatings)
+        {
+            var player = history.Player;
+            player.Rating = history.Rating;
+        }
+
+        existingGame.ScoreTeam1 = 0;
+        existingGame.ScoreTeam2 = 0;
+        existingGame.Status = "Reverted";
+
+        await _context.SaveChangesAsync();
+
+        return Result.Ok(existingGame);
     }
 
     public async Task<Result<Models.Game>> AddPlayersToGame(int gameId, AddPlayersToGameDto gameDto)
@@ -243,6 +324,8 @@ public class GameService : IGameService
     {
         var game = await _context.Games
             .Include(g => g.Players)
+            .Include(g => g.Team1).ThenInclude(t => t.Players)
+            .Include(g => g.Team2).ThenInclude(t => t.Players)
             .FirstOrDefaultAsync(g => g.Id == gameId);
 
         if (game is null)
@@ -330,5 +413,21 @@ public class GameService : IGameService
         return Result.Ok<Models.Game>(game, new MessageResponse("Teams updated."));
     }
 
+    public async Task<Result<Models.Game>> ResetTeams(int gameId)
+    {
+        var game = await _context.Games
+            .Include(g => g.Team1)
+            .Include(g => g.Team2)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
 
+        if (game is null)
+            return Result.Failure<Models.Game>(Errors.General.NotFound("Game", gameId));
+
+        game.Team1 = null;
+        game.Team2 = null;
+
+        await _context.SaveChangesAsync();
+
+        return Result.Ok<Models.Game>(game, new MessageResponse("Teams reset."));
+    }
 }

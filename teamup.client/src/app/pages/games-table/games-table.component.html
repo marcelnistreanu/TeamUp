@@ -113,34 +113,63 @@
       <td>{{ game.team2 ? game.team2.name : "N/A" }}</td>
       <td>{{ game.scoreTeam1 }} - {{ game.scoreTeam2 }}</td>
       <td>
-        <button
-          (click)="editGame(game)"
-          pButton
-          pRipple
-          icon="pi pi-pencil"
-          style="border-radius: 50%; margin-right: 5px"
-          class="p-button-rounded p-button-success mr-2"
-        ></button>
-        <p-confirmDialog
-          header="Confirmation"
-          icon="pi pi-exclamation-triangle"
-        ></p-confirmDialog>
-        <p-toast key="selectPlayers"></p-toast>
-        <button
-          (click)="deleteGame(game)"
-          pButton
-          pRipple
-          icon="pi pi-trash"
-          style="border-radius: 50%; margin-right: 5px"
-          class="p-button-rounded p-button-danger"
-        ></button>
-        <button
-          (click)="addPlayers(game)"
-          type="button"
-          class="btn btn-primary"
-        >
-          Add players
-        </button>
+        <div class="d-flex">
+
+          <div class="col-3">
+          @if(game.status != 'Completed')
+          {
+              <button
+              (click)="editGame(game)"
+              pButton
+              pRipple
+              icon="pi pi-pencil"
+              style="border-radius: 50%; margin-right: 5px"
+              class="p-button-rounded p-button-success mr-2"
+              ></button>
+          }
+
+          @if(game.status == 'Completed')
+            {
+                <button
+                (click)="revertGame(game)"
+                pButton
+                pRipple
+                icon="pi pi-undo"
+                style="border-radius: 50%; margin-right: 5px"
+                class="p-button-rounded p-button-warning mr-2"
+                ></button>
+            }
+          </div>
+
+          <p-confirmDialog
+            header="Confirmation"
+            icon="pi pi-exclamation-triangle"
+          ></p-confirmDialog>
+          <p-toast key="selectPlayers"></p-toast>
+          <div class="col-3">
+            <button
+            (click)="deleteGame(game)"
+            pButton
+            pRipple
+            icon="pi pi-trash"
+            style="border-radius: 50%; margin-right: 5px"
+            class="p-button-rounded p-button-danger"
+            ></button>
+          </div>
+
+          <div class="col-6">
+          @if(game.status != 'Completed')
+          {
+              <button
+              (click)="addPlayers(game)"
+              type="button"
+              class="btn btn-primary">
+                Add players
+              </button>
+          }
+          </div>
+
+        </div>
       </td>
     </tr>
   </ng-template>
@@ -273,7 +302,7 @@
       </div>
       <p style="padding-top: 20px;">Number of selected players: <strong>{{selectedPlayers.length}}</strong></p> 
       <div style="padding-top: 10px; flex-shrink: 0;">
-        <button type="button" class="btn btn-primary" (click)="selectPlayers()">
+        <button type="button" class="btn btn-primary" (click)="save()">
           Add players
         </button>
       </div>
@@ -299,7 +328,7 @@
         <label>Date</label>
 
         <input matInput type="datetime-local" formControlName="date" />
-      </div>
+      </div>      
 
       @if(formSubmitted && editForm.get('date')?.errors){
       <div class="ng-invalid ng-dirty invalid-feedback">
@@ -358,8 +387,29 @@
           />
         </div>
       </div>
+    </form>
 
-      @if(isSuccessful) {
+    <div style="margin-top: 10px;">
+      <strong>Team 1:</strong>
+      @for(player of selectedGame.team1?.players; track player; let last = $last) {
+        {{ player.firstName }} {{ player.lastName }}
+        @if (!last){
+          <span>, </span>
+        }
+      }
+    </div>
+
+    <div style="margin-top: 5px;">
+      <strong>Team 2:</strong>
+      @for(player of selectedGame.team2?.players; track player; let last = $last) {
+        {{ player.firstName }} {{ player.lastName }}
+        @if (!last){
+          <span>, </span>
+        }
+      }
+    </div>
+
+    @if(isSuccessful) {
 
       <div class="pt-3" style="padding-top: 5px">
         <div
@@ -371,7 +421,6 @@
         </div>
       </div>
       }
-    </form>
   </ng-template>
   <ng-template pTemplate="footer">
     <button
@@ -393,50 +442,4 @@
   </ng-template>
 </p-dialog>
 
-<!-- <p-dialog [(visible)]="generateTeamsDialog" [draggable]="false" [style]="{width: '35vw'}" header="Generate Teams" [modal]="true" styleClass="p-fluid" (onHide)="hideGenerateTeamsDialog()">
-  <ng-template pTemplate="content" let-game> -->
-
-<!-- Team 1 -->
-<!-- <div class="row">
-
-  <div class="col-3">
-    <h2>Team 1</h2>
-
-    <div class="player-list example-list" (dragover)="onDragOver($event)" pDroppable (drop)="onDrop(game, $event, 'team1')">
-      <ul class="list-none flex flex-column gap-2 p-0 m-0">
-        <div
-        *ngFor="let player of game.team1.players"
-        class="player p-2 border-round shadow-1" 
-        class="example-box"
-        pDraggable
-        draggable="true"
-        (dragstart)="onDragStart(player)">
-        {{ player.name }}
-      </div>
-      </ul>
-    </div>
-  </div>
-   -->
-<!-- Team 2 -->
-<!-- <div class="team-container col-md-3">
-    <h2>Team 2</h2>
-    <div class="player-list example-list" (dragover)="onDragOver($event)" pDroppable (drop)="onDrop(game, $event, 'team2')">
-      <ul class="list-none flex flex-column gap-2 p-0 m-0">
-          <li
-          *ngFor="let player of game.team2.players"
-          class="player p-2 border-round shadow-1" 
-          pDraggable
-          class="example-box"
-          draggable="true"
-          (dragstart)="onDragStart(player)">
-          {{ player.name }}
-      </li>
-        
-      </ul>
-    </div>
-  </div>
-
-</div>
-
-  </ng-template>
-</p-dialog> -->
+<p-toast key="savedTeams"></p-toast>

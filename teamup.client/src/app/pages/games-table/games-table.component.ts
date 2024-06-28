@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   Input,
@@ -46,6 +47,7 @@ import { Team } from 'app/models/Team';
 import { DialogService } from 'primeng/dynamicdialog';
 import { GenerateTeamsDialogComponent } from '../generate-teams-dialog/generate-teams-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-games-table',
@@ -72,7 +74,7 @@ import { MatDialog } from '@angular/material/dialog';
   templateUrl: './games-table.component.html',
   styleUrl: './games-table.component.css',
 })
-export class GamesTableComponent implements OnInit, OnDestroy {
+export class GamesTableComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private gameService: GameService,
     private confirmationService: ConfirmationService,
@@ -80,7 +82,8 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private playerService: PlayerService,
     private dialog: MatDialog,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   games: Game[] = [];
@@ -120,8 +123,30 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    const message = localStorage.getItem('toastMessage');
+    if (message) {
+      const parsedMessage = JSON.parse(message);
+      this.messageService.add(parsedMessage);
+      localStorage.removeItem('toastMessage');
+    }
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  revertGame(game: Game): void {
+    this.gameService.revertGame(game.id).subscribe({
+      next: (response) => {
+        console.log(response);
+
+        this.getGames();
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
   }
 
   getGames(): void {
@@ -181,6 +206,8 @@ export class GamesTableComponent implements OnInit, OnDestroy {
         return 'success';
       case 'Canceled':
         return 'danger';
+      case 'Reverted':
+        return 'warning';
       default:
         return 'info';
     }
@@ -200,6 +227,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
       { label: 'Scheduled', value: 'Scheduled' },
       { label: 'Completed', value: 'Completed' },
       { label: 'Canceled', value: 'Canceled' },
+      { label: 'Reverted', value: 'Reverted' },
     ];
 
     this.editForm.patchValue({
@@ -216,6 +244,19 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.formSubmitted = true;
     if (this.editForm.valid) {
       const formValue = this.editForm.value;
+
+      // Check if the scores have changed
+      const scoresChanged =
+        formValue.scoreTeam1 !== this.selectedGame.scoreTeam1 ||
+        formValue.scoreTeam2 !== this.selectedGame.scoreTeam2;
+      
+      const statusChanged = formValue.status !== this.selectedGame.status;
+
+      // If scores have changed and status is not 'Completed', set it to 'Completed'
+      if (!statusChanged && scoresChanged && formValue.status !== 'Completed') {
+        formValue.status = 'Completed';
+      }
+
       this.gameDto = {
         date: formValue.date,
         location: formValue.location,
@@ -247,12 +288,10 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.playerService.getPlayers().subscribe({
         next: (response) => {
-          console.log(response);
           this.players = response.value.map((player) => ({
             ...player,
             selected: false,
           }));
-          console.log(this.players);
           this.allPlayers = this.players;
         },
         error: (error) => {
@@ -268,22 +307,26 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     this.selectedGame = game;
   }
 
-  hideAddPlayersDialog(message?: { severity: string; summary: string; detail: string }): void {
+  hideAddPlayersDialog(message?: {
+    severity: string;
+    summary: string;
+    detail: string;
+  }): void {
     this.addPlayersDialog = false;
     this.getGames();
     this.players = [...this.allPlayers];
 
     if (message) {
       setTimeout(() => {
-          this.messageService.add({
-              key: 'selectPlayers',
-              severity: message.severity,
-              summary: message.summary,
-              detail: message.detail,
-              life: 3000,
-          });
+        this.messageService.add({
+          key: 'selectPlayers',
+          severity: message.severity,
+          summary: message.summary,
+          detail: message.detail,
+          life: 3000,
+        });
       }, 50);
-  }
+    }
   }
 
   initializeSelectedPlayers(selectedGame: Game): void {
@@ -302,10 +345,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
   }
 
   // Select players for game
-  selectPlayers(): void {
-    console.log('Players: ', this.selectedPlayers);
-    console.log('Game: ', this.selectedGame);
-
+  save(): void {
     this.addPlayersToGameDto.players = this.selectedPlayers;
 
     this.subscriptions.push(
@@ -325,6 +365,7 @@ export class GamesTableComponent implements OnInit, OnDestroy {
                 summary: 'Success!',
                 detail: response.message.message,
               };
+              this.resetTeams(this.selectedGame.id);
             } else {
               message = {
                 severity: 'info',
@@ -343,19 +384,16 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     );
   }
 
-  // generateTeams(gameId: number) {
-  //   this.subscriptions.push(
-  //     this.gameService.generateTeams(gameId).subscribe({
-  //       next: (response) => {
-  //         console.log(response);
-  //         this.getGames();
-  //       },
-  //       error: (error) => {
-  //         console.error(error);
-  //       },
-  //     })
-  //   );
-  // }
+  resetTeams(gameId: number): void {
+    this.gameService.resetTeams(gameId).subscribe({
+      next: (response) => {
+        console.log('Reset teams: ', response);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+  }
 
   ovr: number;
 
@@ -371,56 +409,22 @@ export class GamesTableComponent implements OnInit, OnDestroy {
     return this.ovr;
   }
 
-  // currentPlayerDragged: Player;
-
-  // onDragStart(player: Player) {
-  //   console.log('onDragStart');
-  //   this.currentPlayerDragged = player;
-  //   console.log(this.currentPlayerDragged);
-  // }
-
-  // onDrop(game: Game, event: any, team: string) {
-  //   console.log('onDrop team: ', team);
-  //   if (team == 'team1') {
-  //     game.team1?.players.push(this.currentPlayerDragged);
-
-  //     if (game.team2?.players) {
-  //       game.team2.players = game.team2.players.filter(
-  //         (p) => p.id !== this.currentPlayerDragged.id
-  //       );
-  //     }
-  //   } else if (team == 'team2') {
-  //     game.team2?.players.push(this.currentPlayerDragged);
-
-  //     if (game.team1?.players) {
-  //       game.team1.players = game.team1.players.filter(
-  //         (p) => p.id !== this.currentPlayerDragged.id
-  //       );
-  //     }
-  //   }
-  // }
-
-  // onDragOver(event: any) {
-  //   console.log('onDragOver');
-  //   event.preventDefault();
-  // }
-
   generateTeamsDialog: boolean = false;
 
-  // hideGenerateTeamsDialog() {
-  //   this.generateTeamsDialog = false;
-  // }
-
   openGenerateTeamsDialog(game: Game) {
-    this.generateTeamsDialog = true;
-    console.log('Game data:', game); // Log game data
-    const ref = this.dialog.open(GenerateTeamsDialogComponent, {
-      data: game,
-      height: '600px',
-      width: '600px',
-    });
+    this.router.navigate(['/generate-teams', game.id]);
+    // this.generateTeamsDialog = true;
+    // const ref = this.dialog.open(GenerateTeamsDialogComponent, {
+    //   data: game,
+    //   height: '600px',
+    //   width: '600px',
+    // });
 
-    this.subscriptions.push(ref.afterClosed().subscribe(() => this.getGames()));
+    // this.subscriptions.push(ref.afterClosed().subscribe(() =>
+    //   setTimeout(() => {
+    //     this.getGames()
+    //   }, 100)
+    //   ));
   }
 
   filterPlayers(event: Event) {
@@ -461,32 +465,4 @@ export class GamesTableComponent implements OnInit, OnDestroy {
       this.filterPlayers({ target: input } as unknown as Event);
     }
   }
-
-  // expandedRows: { [key: number]: boolean } = {};
-
-  // toggleExpandRow(game: Game): void {
-  //   if (this.expandedRows[game.id]) {
-  //     this.expandedRows[game.id] = false;
-  //   } else {
-  //     this.expandedRows[game.id] = true;
-  //     this.loadGameDetails(game.id);
-  //   }
-  //   console.log(this.expandedRows);
-  // }
-
-  // loadGameDetails(gameId: number): void {
-  //   this.gameService.getGameDetails(gameId).subscribe({
-  //     next: (response) => {
-  //       console.log(response);
-  //       let game = response.value;
-  //       const index = this.games.findIndex((game) => game.id === gameId);
-  //       if (index !== -1) {
-  //         this.games[index] = game;
-  //       }
-  //     },
-  //     error: (error) => {
-  //       console.error(error);
-  //     },
-  //   });
-  // }
 }

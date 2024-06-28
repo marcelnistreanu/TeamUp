@@ -14,7 +14,8 @@
                   [showIcon]="true"
                   [showTime]="true"
                   dateFormat="dd/mm/yy"
-                  timeFormat="HH:mm">
+                  timeFormat="HH:mm"
+                  [minDate]="minDate">
       </p-calendar>
 
       @if(formSubmitted && form.get('date')?.errors){

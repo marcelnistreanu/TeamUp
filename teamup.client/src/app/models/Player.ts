@@ -12,4 +12,5 @@ export class Player {
   games: Game[];
   team: Team[];
   selected: boolean;
+  isGrouped?: boolean;
 }

@@ -14,6 +14,7 @@ public class DataContext : DbContext
     public DbSet<Player> Players { get; set; }
     public DbSet<Team> Teams { get; set; }
     public DbSet<Game> Games { get; set; }
+    public DbSet<PlayerRatingHistory> PlayerRatingHistory { get; set; }
 
 
 
@@ -34,5 +35,13 @@ public class DataContext : DbContext
         modelBuilder.Entity<Game>()
             .HasMany(g => g.Players)
             .WithMany(p => p.Games);
+
+        modelBuilder.Entity<PlayerRatingHistory>()
+            .HasOne(h => h.Player)
+            .WithMany();
+
+        modelBuilder.Entity<PlayerRatingHistory>()
+            .HasOne(h => h.Game)
+            .WithMany();
     }
 }
